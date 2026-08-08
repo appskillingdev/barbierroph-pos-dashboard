@@ -4,9 +4,65 @@
   "description": "barbierro app backend",
   "license": "ISC",
   "author": "AppSkilling",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx --watch --env-file .env.development src/index.ts",
+    "start": "node --env-file .env.production dist/index.js",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest",
+    "test:run": "vitest --run",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@pgtyped/runtime": "^2.4.2",
+    "@prisma/client": "^7.9.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/eslint-plugin": "^1.6.26",
+    "bcrypt": "^6.0.0",
+    "express": "^5.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "passport-local": "^1.0.0",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.7",
+    "vitest": "^4.1.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@pgtyped/cli": "^2.4.3",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.2",
+    "@types/passport-local": "^1.0.38",
+    "eslint": "^10.8.0",
+    "eslint-plugin-perfectionist": "^5.10.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.66.0"
+  },
+  "imports": {
+    "#/*": {
+      "types": "./src/*",
+      "default": [
+        "./dist/*",
+        "./src/*"
+      ]
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint",
+      "prettier --check"
+    ],
+    "*.{json,yml,yaml,md}": [
+      "prettier --check"
+    ]
   }
 }
