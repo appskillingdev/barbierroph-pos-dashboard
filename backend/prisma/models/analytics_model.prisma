@@ -1,0 +1,55 @@
+// ========================================
+// ANALYTICS & REPORTING VIEWS
+// ========================================
+
+// Read-only view: v_mtd_report
+view VMtdReport {
+  period                      String  
+  actualSales                 Decimal
+  headcount                   Int
+  headcountPrevMonthPerctg    Decimal
+  headcountGainedLost         Int
+  growthVsLy                  Decimal
+  averageCost                 Decimal
+  averageHeadsPerBarber       Decimal
+  averageBarbersOnDuty        Decimal
+  averageDailySales           Decimal
+  averageDailyHeadcount       Decimal
+  operationalDaysCount        Int?   
+  totalBarberPayouts          Decimal
+  totalStaffPayouts           Decimal
+  grandTotalPayouts           Decimal
+  monthlyGrossProfit          Decimal
+  monthlyShare                Decimal
+  averageMonthlyPayout        Decimal
+  averageDailyPayout          Decimal 
+  // @@map("v_mtd_report")
+  // @@ignore
+}
+
+// Read-only view: v_barbers_performance
+// view VBarbersPerformance {
+//   id String @id @default(uuid())
+//   // Add specific fields based on barber performance tracking needs
+
+//   // @@map("v_barbers_performance")
+//   // @@ignore
+// }
+
+// Read-only view: v_customer_lifetime_value
+view VCustomerLifetimeValue {
+  customerId              String  
+  customerName            String
+  visitCount              Int
+  visitInterval           Decimal
+  averageVisit            Decimal
+  clv                     Decimal
+  visitDateFirst          DateTime
+  visitDateLatest         DateTime
+  projectedDateReturn     DateTime
+  latestBarberAssigned    String
+  latestService           String
+
+  // @@map("v_customer_lifetime_value")
+  // @@ignore
+}

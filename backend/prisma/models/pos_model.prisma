@@ -1,0 +1,48 @@
+model PosCheckout {
+  id                  String           @id @default(uuid())
+  customerName        String           @map("customer_name")
+  customerSocialMedia String?          @map("customer_social_media")
+  customerAddress     String?          @map("customer_address")
+  customerEmail       String?          @map("customer_email")
+  assignedBranch      String           @map("assigned_branch")
+  assignedBarberId    String           @map("assigned_barber")
+  serviceCode         String           @map("service_code")
+  amount              Decimal
+  paymentMethod       String           @map("payment_method")
+  referenceNumber     String?          @map("reference_number")
+  purchasedAt         DateTime         @map("purchased_at")
+  barber              BphBarber        @relation(fields: [assignedBarberId], references: [barberId])
+  paymentMethodRef    BphPaymentMethod @relation(fields: [paymentMethod], references: [paymentMethodName])
+  service             BphService       @relation(fields: [serviceCode], references: [serviceCode])
+
+  @@map("pos_checkout")
+}
+
+model PosQueue {
+  id                  String     @id @default(uuid())
+  customerName        String     @map("customer_name")
+  customerSocialMedia String?    @map("customer_social_media")
+  customerAddress     String?    @map("customer_address")
+  customerEmail       String?    @map("customer_email")
+  appointmentId       String?    @map("appointment_id")
+  appointmentDate     String?    @map("appointment_date")
+  serviceCode         String     @map("service_code")
+  assignedBarberId    String     @map("assigned_barber")
+  assignedBranch      String     @map("assigned_branch")
+  status              String
+  service             BphService @relation(fields: [serviceCode], references: [serviceCode])
+
+  @@map("pos_queue")
+}
+
+model PosSlot {
+  id               String    @id @default(uuid())
+  branchId         String    @map("branch_id")
+  slotId           String    @map("slot_id")
+  assignedBarberId String    @map("assigned_barber")
+  status           String
+  barber           BphBarber @relation(fields: [assignedBarberId], references: [barberId])
+  branch           BphBranch @relation(fields: [branchId], references: [branchId])
+
+  @@map("pos_slots")
+}

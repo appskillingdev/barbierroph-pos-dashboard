@@ -1,0 +1,41 @@
+### Get all branches
+GET http://localhost:3000/branches HTTP/1.1
+
+### Get branch by ID
+GET http://localhost:3000/branches/branch001 HTTP/1.1
+
+### Get branches by owner
+GET http://localhost:3000/branches/owner/owner001 HTTP/1.1
+
+### Get branches by location
+GET http://localhost:3000/branches/location?city=Manila&province=NCR HTTP/1.1
+
+### Create new branch
+POST http://localhost:3000/branches HTTP/1.1
+Content-Type: application/json
+
+{
+  "branchId": "TEST-BRANCH",
+  "branchName": "Test Branch",
+  "branchAddress": "123 Test St",
+  "branchCity": "Manila",
+  "branchProvince": "NCR",
+  "branchRegion": "NCR",
+  "branchContactNumber": "09123456789",
+  "branchEmail": "test@barbierro.com",
+  "branchOwner": "owner001",
+  "branchDescription": "Test branch",
+  "branchValidity": "ACTIVE"
+}
+
+### Update branch
+PUT http://localhost:3000/branches/TEST-BRANCH HTTP/1.1
+Content-Type: application/json
+
+{
+  "branchContactNumber": "09987654321",
+  "branchDescription": "Updated test branch"
+}
+
+### Delete branch
+DELETE http://localhost:3000/branches/TEST-BRANCH HTTP/1.1

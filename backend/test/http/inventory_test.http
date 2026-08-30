@@ -1,0 +1,49 @@
+### Get all inventory items
+GET http://localhost:3000/inventory HTTP/1.1
+
+### Get inventory item by code
+GET http://localhost:3000/inventory/PROD-001 HTTP/1.1
+
+### Get inventory by category
+GET http://localhost:3000/inventory/category/CAT-001 HTTP/1.1
+
+### Get low stock items
+GET http://localhost:3000/inventory/low-stock?threshold=10 HTTP/1.1
+
+### Create new inventory item
+POST http://localhost:3000/inventory HTTP/1.1
+Content-Type: application/json
+
+{
+  "productCode": "TEST-PROD",
+  "productName": "Test Product",
+  "productBrand": "Test Brand",
+  "productDescription": "Test product description",
+  "productCategory": "CAT-001",
+  "productQuantity": 50,
+  "productUnit": "pcs",
+  "productCost": 100.00,
+  "productValidity": "ACTIVE"
+}
+
+### Update inventory item
+PUT http://localhost:3000/inventory/TEST-PROD HTTP/1.1
+Content-Type: application/json
+
+{
+  "productQuantity": 75,
+  "productCost": 120.00
+}
+
+### Update inventory stock
+PUT http://localhost:3000/inventory/TEST-PROD/stock HTTP/1.1
+Content-Type: application/json
+
+{
+  "quantityChange": -5,
+  "actionType": "usage",
+  "notes": "Used for customer service"
+}
+
+### Delete inventory item
+DELETE http://localhost:3000/inventory/TEST-PROD HTTP/1.1

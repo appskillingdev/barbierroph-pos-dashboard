@@ -1,0 +1,61 @@
+### Get all sales
+GET http://localhost:3000/sales HTTP/1.1
+
+### Get latest 10 sales
+GET http://localhost:3000/sales/latest?limit=10 HTTP/1.1
+
+### Get sales by transaction ID
+GET http://localhost:3000/sales/transaction/TXN-001 HTTP/1.1
+
+### Get sales by date range
+GET http://localhost:3000/sales/date-range?startDate=2024-01-01&endDate=2024-12-31 HTTP/1.1
+
+### Get sales by customer
+GET http://localhost:3000/sales/customer/cust001 HTTP/1.1
+
+### Get sales by branch
+GET http://localhost:3000/sales/branch/branch001 HTTP/1.1
+
+### Get sales by barber
+GET http://localhost:3000/sales/barber/barber001 HTTP/1.1
+
+### Get sales by payment method
+GET http://localhost:3000/sales/payment-method/cash HTTP/1.1
+
+### Create new sale
+POST http://localhost:3000/sales HTTP/1.1
+Content-Type: application/json
+
+{
+  "transactionId": "TXN-TEST-001",
+  "transactionDate": "2024-01-15",
+  "customerId": "cust001",
+  "branchId": "branch001",
+  "barberId": "barber001",
+  "serviceCode": "REG-CUT",
+  "totalAmount": 150.00,
+  "paymentMethod": "cash",
+  "referenceNo": "REF-001",
+  "count1": 0,
+  "count5": 0,
+  "count10": 0,
+  "count20": 1,
+  "count50": 0,
+  "count100": 1,
+  "count200": 0,
+  "count500": 0,
+  "count1000": 0,
+  "createdBy": "owner001"
+}
+
+### Update sale
+PUT http://localhost:3000/sales/TXN-TEST-001 HTTP/1.1
+Content-Type: application/json
+
+{
+  "totalAmount": 175.00,
+  "paymentMethod": "gcash"
+}
+
+### Delete sale
+DELETE http://localhost:3000/sales/TXN-TEST-001 HTTP/1.1

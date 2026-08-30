@@ -1,0 +1,44 @@
+### Get all slots
+GET http://localhost:3000/slots HTTP/1.1
+
+### Get slot by ID
+GET http://localhost:3000/slots/1 HTTP/1.1
+
+### Get slots by branch
+GET http://localhost:3000/slots/branch/branch001 HTTP/1.1
+
+### Get slots by barber
+GET http://localhost:3000/slots/barber/barber001 HTTP/1.1
+
+### Get available slots by branch
+GET http://localhost:3000/slots/available/branch001 HTTP/1.1
+
+### Get slots by date range
+GET http://localhost:3000/slots/date-range?startDate=2024-01-01&endDate=2024-01-31 HTTP/1.1
+
+### Create new slot
+POST http://localhost:3000/slots HTTP/1.1
+Content-Type: application/json
+
+{
+  "slotBranchId": "branch001",
+  "slotBarberId": "barber001",
+  "slotDate": "2024-01-20",
+  "slotStartTime": "10:00:00",
+  "slotEndTime": "11:00:00",
+  "slotStatus": "available",
+  "slotMaxCapacity": 1,
+  "slotCurrentBookings": 0
+}
+
+### Update slot
+PUT http://localhost:3000/slots/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "slotStatus": "booked",
+  "slotCurrentBookings": 1
+}
+
+### Delete slot
+DELETE http://localhost:3000/slots/1 HTTP/1.1

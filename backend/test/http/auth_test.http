@@ -1,0 +1,68 @@
+### Auth API Tests
+@baseUrl = http://localhost:3000/api
+
+###
+# Login with Master user (P01)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner1@barbierro.com",
+  "password": "Password123!"
+}
+
+###
+# Login with Branch Manager (P02)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner2@barbierro.com",
+  "password": "Password123!"
+}
+
+###
+# Login with Cashier (P03)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "cashier4@barbierro.com",
+  "password": "Password123!"
+}
+
+###
+# Check session status
+GET {{baseUrl}}/auth/session
+
+###
+# Logout
+POST {{baseUrl}}/auth/logout
+
+###
+# Test invalid credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "invalid@barbierro.com",
+  "password": "wrongpassword"
+}
+
+###
+# Test missing password
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner1@barbierro.com"
+}
+
+###
+# Test missing email
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "password": "Password123!"
+}

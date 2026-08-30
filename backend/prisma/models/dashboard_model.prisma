@@ -1,0 +1,183 @@
+model BphSale {
+  transactionId    String           @map("transaction_id")
+  transactionDate  DateTime         @map("transaction_date") @db.Date
+  customerId       String           @map("customer_id")
+  branchId         String           @map("branch_id")
+  barberId         String           @map("barber_id")
+  serviceCode      String           @map("service_code")
+  totalAmount      Decimal          @map("total_amount")
+  paymentMethod    String           @map("payment_method")
+  referenceNo      String?          @map("reference_no")
+  count1           Int?             @map("count_1")
+  count5           Int?             @map("count_5")
+  count10          Int?             @map("count_10")
+  count20          Int?             @map("count_20")
+  count50          Int?             @map("count_50")
+  count100         Int?             @map("count_100")
+  count200         Int?             @map("count_200")
+  count500         Int?             @map("count_500")
+  count1000        Int?             @map("count_1000")
+  createdBy        String?          @map("created_by")
+  barber           BphBarber        @relation(fields: [barberId], references: [barberId])
+  branch           BphBranch        @relation(fields: [branchId], references: [branchId])
+  customer         BphCustomer      @relation(fields: [customerId], references: [customerId])
+  paymentMethodRef BphPaymentMethod @relation(fields: [paymentMethod], references: [paymentMethodId])
+  service          BphService       @relation(fields: [serviceCode], references: [serviceCode])
+
+  @@id([transactionId, transactionDate, customerId, branchId, barberId, serviceCode])
+  @@map("bph_sales")
+}
+
+model BphService {
+  serviceCode        String           @id @map("service_code")
+  category           String?
+  cluster            String?
+  serviceName        String           @map("service_name")
+  serviceDescription String?          @map("service_description")
+  serviceAmount      Decimal          @map("service_amount")
+  icon               Bytes?
+  isPromo            Boolean          @default(false) @map("is_promo")
+  sales              BphSale[]
+  serviceCosts       BphServiceCost[]
+  posCheckouts       PosCheckout[]
+  posQueues          PosQueue[]
+
+  @@map("bph_services")
+}
+
+model BphServiceCost {
+  serviceCode   String       @map("service_code")
+  itemNumber    String       @map("item_number")
+  costCategory  String       @map("cost_category")
+  costId        String       @map("cost_id")
+  inventoryItem BphInventory @relation(fields: [costId], references: [productId])
+  service       BphService   @relation(fields: [serviceCode], references: [serviceCode])
+
+  @@id([serviceCode, itemNumber, costCategory, costId])
+  @@map("bph_services_cost")
+}
+
+model BphBranch {
+  branchId       String      @id @map("branch_id")
+  branchOwner    String      @map("branch_owner")
+  establishedAt  DateTime    @map("established_at") @db.Date
+  branchLocation String      @map("branch_location")
+  branchAddress  String      @map("branch_address")
+  branchImage    Bytes?      @map("branch_image")
+  socialMedia    String?     @map("social_media")
+  barbers        BphBarber[]
+  owner          BphUser     @relation(fields: [branchOwner], references: [userId])
+  sales          BphSale[]
+  posSlots       PosSlot[]
+
+  @@map("bph_branches")
+}
+
+model BphUser {
+  id              String      @id @default(uuid()) @map("ID")
+  userId          String      @unique @map("user_id")
+  emailAddress    String      @unique @map("email_address")
+  password        String
+  createdAt       DateTime    @default(now()) @map("created_at")
+  fullName        String      @map("full_name")
+  userType        String?     @map("user_type")
+  fullPicture     Bytes?      @map("full_picture")
+  socialMedia     String?     @map("social_media")
+  completeAddress String?     @map("complete_address")
+  contactNumber   String?     @map("contact_number")
+  branches        BphBranch[]
+
+  @@map("bph_users")
+}
+
+model BphBarber {
+  barberId     String        @id @default(uuid()) @map("barber_id")
+  branchId     String?       @map("branch_id")
+  position     String?
+  fullName     String        @map("full_name")
+  address      String?
+  commission   Decimal?
+  picture      Bytes?
+  socialMedia  String?       @map("social_media")
+  emailAddress String?       @map("email_address")
+  branch       BphBranch?    @relation(fields: [branchId], references: [branchId])
+  sales        BphSale[]
+  posCheckouts PosCheckout[]
+  posSlots     PosSlot[]
+
+  @@map("bph_barbers")
+}
+
+model BphInventory {
+  productId       String                @id @map("product_id")
+  category        String?
+  productName     String                @map("product_name")
+  productImage    String?               @map("product_image")
+  stockPrice      Decimal?              @map("stock_price")
+  minimumStock    Decimal?              @map("miniumum_stock")
+  initialStock    Decimal?              @map("initial_stock")
+  unitCost        Decimal?              @map("unit_cost")
+  stockSize       Decimal?              @map("stock_size")
+  stockSizeUom    String?               @map("stock_size_uom")
+  stockUsage      Decimal?              @map("stock_usage")
+  stockUsageUom   String?               @map("stock_usage_uom")
+  stockYields     Decimal?              @map("stock_yields")
+  stockCost       Decimal?              @map("stock_cost")
+  otherCost       Decimal?              @map("other_cost")
+  otherDiscounts  Decimal?              @map("other_discounts")
+  categoryRef     BphInventoryCategory? @relation(fields: [category], references: [categoryId])
+  inventoryTrails BphInventoryTrail[]
+  serviceCosts    BphServiceCost[]
+
+  @@map("bph_inventory")
+}
+
+model BphInventoryCategory {
+  categoryId          String         @id @map("category_id")
+  categoryDescription String         @map("category_description")
+  inventoryItems      BphInventory[]
+
+  @@map("bph_inventory_category")
+}
+
+model BphPaymentMethod {
+  paymentMethodId   String        @id @map("payment_method_id")
+  paymentMethodName String        @unique @map("payment_method_name")
+  bankNumber        String?       @map("bank_number")
+  sales             BphSale[]
+  posCheckouts      PosCheckout[]
+
+  @@map("bph_paymentmethods")
+}
+
+model BphInventoryTrail {
+  id              String       @id @default(uuid())
+  productId       String       @map("product_id")
+  category        String?
+  productName     String       @map("product_name")
+  movementType    String       @map("movement_type")
+  createdDate     DateTime     @map("created_date") @db.Date
+  quantity        Decimal?
+  quantityPrice   Decimal?     @map("quantity_price")
+  stockSize       Decimal?     @map("stock_size")
+  stockSizeUom    String?      @map("stock_size_uom")
+  unitPrice       Decimal?     @map("unit_price")
+  unitCost        Decimal?     @map("unit_cost")
+  additionalNotes String?      @map("additional_notes")
+  product         BphInventory @relation(fields: [productId], references: [productId])
+
+  @@map("bph_inventory_trail")
+}
+
+model BphCustomer {
+  customerId      String    @id @default(uuid()) @map("customer_id")
+  customerName    String    @map("customer_name")
+  customerAddress String?   @map("customer_address")
+  socialMedia     String?   @map("social_media")
+  contactNumber   String?   @map("contact_number")
+  emailAddress    String?   @map("email_address")
+  visitCount      Int?      @default(0) @map("visit_count")
+  sales           BphSale[]
+
+  @@map("bph_customers")
+}
