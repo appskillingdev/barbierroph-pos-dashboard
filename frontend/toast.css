@@ -1,0 +1,79 @@
+/* ==================== TOAST NOTIFICATION STACK ==================== */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10000;
+  pointer-events: none; /* Allows clicking behind empty container space */
+}
+
+.toast-notification {
+  pointer-events: auto; /* Enables clicking close button on individual toasts */
+  min-width: 280px;
+  max-width: 380px;
+  background: #1e293b;
+  color: #f8fafc;
+  border-left: 8px solid #e8a228; /* Default amber theme */
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  
+  /* Initial hidden state for animation */
+  opacity: 0;
+  transform: translateX(60px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast-notification.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-notification.hide {
+  opacity: 0;
+  transform: translateX(80px);
+}
+
+/* Status Variations */
+.toast-success { border-left-color: #10b981; } /* Green */
+.toast-info    { border-left-color: #3b82f6; } /* Blue */
+.toast-warning { border-left-color: #f59e0b; } /* Amber */
+.toast-danger  { border-left-color: #ef4444; } /* Red */
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toast-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.toast-message {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.toast-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.toast-close-btn:hover {
+  color: #ffffff;
+}

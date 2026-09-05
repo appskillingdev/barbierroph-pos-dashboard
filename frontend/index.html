@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BARBIERRO - Queue & POS Dashboard</title>
+  <link rel="stylesheet" href="universal_styles.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="chairs.css" />
+  <link rel="stylesheet" href="toast.css" />
+</head>
+
+<body>
+
+  <!-- ==================== TOP HEADER ==================== -->
+  <header class="app-header">
+    <div class="brand">BARBIERRO</div>
+    <div class="header-info">
+      <h1 class="dashboard-title">Queue & POS Dash Board</h1>
+      <div class="meta-controls">
+        <span>Cashier: <strong id="cashierName">Tracy M.</strong></span>
+        <span class="divider">|</span>
+        <label for="branchSelect">Branch:</label>
+        <select id="branchSelect" class="branch-dropdown">
+          <option value="binan" selected>Barbierro Binan</option>
+          <option value="sta-rosa">Barbierro Sta. Rosa</option>
+        </select>
+      </div>
+    </div>
+    <button id="btnWalkIn" class="btn-primary-dark">+ Walk-in Gupit</button>
+  </header>
+
+  <!-- ==================== MAIN CONTAINER ==================== -->
+  <main class="pos-container">
+
+    <!-- LEFT SIDEBAR: BOOKNETIC SYNC QUEUE -->
+    <aside class="sidebar-left">
+      <div class="sidebar-header">
+        <h2>BOOKNETIC SYNC QUEUE</h2>
+      </div>
+      <div id="bookneticQueueList" class="queue-list">
+        <!-- Rendered via JS -->
+      </div>
+    </aside>
+
+    <!-- CENTER: SHOP FLOOR KANBAN BOARD -->
+    <section class="shop-floor-board">
+      <div class="board-header">
+        <h2>SHOP FLOOR</h2>
+      </div>
+
+      <div class="board-columns">
+        <!-- Column 1: Waiting Area -->
+        <div class="kanban-column" id="colWaitingArea" data-status="Waiting">
+          <h3>WAITING AREA</h3>
+          <div class="cards-container" id="waitingCards">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Column 2: Active Chairs -->
+        <div class="kanban-column" id="colActiveChairs" data-status="In Progress">
+          <h3>ACTIVE CHAIRS</h3>
+          <div class="cards-container" id="chairsGrid">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Column 3: Check Out -->
+        <div class="kanban-column" id="colCheckout" data-status="Checkout">
+          <h3>CHECK OUT</h3>
+          <div class="cards-container" id="checkoutCards">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT SIDEBAR: QUICK ACTIONS & TOOLS -->
+    <aside class="sidebar-right">
+      <div class="sidebar-header">
+        <h2>QUICK ACTIONS & TOOLS</h2>
+      </div>
+      <div class="search-box">
+        <input type="text" id="clientSearch" placeholder="Search Clients/Services" />
+      </div>
+      <nav class="quick-nav">
+        <button class="nav-btn">📋 Inventory</button>
+        <button class="nav-btn">📊 Sales Reports</button>
+        <button class="nav-btn">👥 Team</button>
+        <button class="nav-btn">👥 Services</button>
+        <button class="nav-btn">⚙️ Settings</button>
+      </nav>
+    </aside>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. WALK-IN MODAL -->
+  <div id="walkInModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>New Walk-in Customer</h3>
+        <button class="close-modal" id="closeWalkIn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label>Customer Name</label>
+        <input type="text" id="walkInName" placeholder="e.g. Juan Dela Cruz" />
+
+        <label>Service</label>
+        <select id="walkInService">
+          <option value="Quick Cut" data-price="250">Quick Cut (₱250.00)</option>
+          <option value="Cut and Dye" data-price="400">Cut and Dye (₱400.00)</option>
+          <option value="Shave & Trim" data-price="150">Shave & Trim (₱150.00)</option>
+        </select>
+
+        <label>Placement</label>
+        <div class="segmented-control">
+          <button type="button" class="segment-btn active" data-value="WAITING">Waiting Area</button>
+          <button type="button" class="segment-btn" data-value="CHAIR">Direct to Chair</button>
+        </div>
+
+        <div id="chairSelectGroup" class="hidden">
+          <label>Preferred Barber</label>
+          <select id="walkInChairSelect">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnConfirmWalkIn" class="btn-primary">Confirm & Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CARD METADATA MODAL ==================== -->
+  <div id="metaModal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3>Card Metadata Inspector</h3>
+        <button id="closeMetaModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 10px; font-size: 13px; color: #94a3b8;">
+          Live state object for <strong id="metaTicketId" style="color: #e8a228;">-</strong>:
+        </div>
+        <pre id="metaJsonViewer" style="
+        background: #0f172a;
+        color: #38bdf8;
+        padding: 14px;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      "></pre>
+      </div>
+      <div class="modal-footer" style="justify-content: flex-end; margin-top: 16px;">
+        <button id="btnCopyMeta" class="btn-card-action" style="width: auto; padding: 6px 16px;">
+          Copy JSON
+        </button>
+      </div>
+    </div>
+    <!-- Toast Notification Stack Container -->
+  </div>
+  <div id="toastContainer" class="toast-container"></div>
+  
+  <script>
+    window.test_script = function () {
+      console.log('Test script executed');
+    };
+  </script>
+  <script src="tusar_universal_scripts.js"></script>
+  <script src="universal_scripts.js"></script>
+  <script src="mock_data.js"></script>
+  <script src="init.js"></script>
+  <script src="app.js"></script>
+  <script src="toast.js"></script>
+</body>
+
+</html>

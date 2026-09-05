@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS Terminal - Integrated Ticket & Inline Editing</title>
+  <style>
+    /* ==========================================
+       CSS VARIABLES & CORE POS THEME
+       ========================================== */
+    :root {
+      --bg-primary: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-card: #334155;
+      --bg-card-hover: #475569;
+      --border-color: #334155;
+      --accent-gold: #e8a228;
+      --accent-gold-hover: #d6911e;
+      --accent-blue: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --promo-bg: #854d0e;
+      --promo-text: #fef08a;
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #020617;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .btn-launch-terminal {
+      background: var(--accent-gold);
+      color: #0f172a;
+      border: none;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.15s, background 0.15s;
+    }
+
+    .btn-launch-terminal:hover {
+      background: var(--accent-gold-hover);
+      transform: translateY(-2px);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ==========================================
+       WIDE INTEGRATED MODAL BACKDROP & CONTAINER
+       ========================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .integrated-modal-container {
+      width: 100%;
+      max-width: 1280px;
+      height: 840px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      display: grid;
+      grid-template-rows: 60px 1fr;
+      overflow: hidden;
+    }
+
+    /* Top Modal Header */
+    .modal-top-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-top-header h2 {
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* Integrated Split Layout Grid */
+    .integrated-split-body {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ==========================================
+       LEFT PANEL: ACTIVE TICKET SUMMARY & EDITING
+       ========================================== */
+    .ticket-panel {
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    /* Editable Customer Header Card */
+    .ticket-header-info {
+      padding: 16px 20px;
+      background: rgba(30, 41, 59, 0.6);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .meta-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .meta-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-toggle-edit {
+      background: none;
+      border: none;
+      color: var(--accent-gold);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-toggle-edit:hover {
+      text-decoration: underline;
+    }
+
+    /* Display Mode View */
+    .customer-display-view {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .customer-name-display {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .customer-sub-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .meta-tag {
+      background: var(--bg-card);
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: var(--text-main);
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Form Mode View */
+    .customer-edit-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: var(--bg-surface);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    .form-group label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .form-group input,
+    .form-group select {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent-gold);
+    }
+
+    /* Scrollable Ticket Line Items */
+    .ticket-items-container {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ticket-item-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .item-code-badge {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-card);
+      color: var(--accent-gold);
+      font-weight: 800;
+      font-size: 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .item-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .item-subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .item-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .item-price {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .item-remove-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .item-remove-btn:hover {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Fixed Bottom Ticket Checkout Section */
+    .ticket-checkout-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-color);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .calculation-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .calculation-row.total-row {
+      border-top: 1px dashed var(--border-color);
+      padding-top: 10px;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .total-amount {
+      color: var(--accent-gold);
+    }
+
+    .btn-checkout {
+      background: var(--accent-gold);
+      color: #0f172a;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s;
+    }
+
+    .btn-checkout:hover {
+      background: var(--accent-gold-hover);
+    }
+
+    /* ==========================================
+       RIGHT PANEL: EMBEDDED SERVICE SELECTION DRAWER
+       ========================================== */
+    .services-drawer {
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .drawer-search-bar {
+      padding: 12px 20px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 36px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-gold);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    /* Top Performers Row */
+    .quick-tap-section {
+      background: var(--bg-surface);
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .quick-tap-title {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+    }
+
+    .quick-tap-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .quick-tap-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .quick-tap-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-gold);
+    }
+
+    .quick-tap-badge {
+      width: 26px;
+      height: 26px;
+      background: var(--accent-gold);
+      color: #0f172a;
+      font-weight: 900;
+      font-size: 9px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cluster Tab Navigation */
+    .cluster-tabs-bar {
+      display: flex;
+      background: var(--bg-surface);
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .cluster-tab {
+      padding: 6px 8px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cluster-tab.active {
+      color: var(--accent-gold);
+      border-bottom-color: var(--accent-gold);
+      background: rgba(232, 162, 40, 0.05);
+    }
+
+    /* Service Cards Grid */
+    .grid-container {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      align-content: start;
+    }
+
+    .service-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .service-card:hover {
+      background: var(--bg-card);
+      border-color: var(--text-muted);
+    }
+
+    .service-card.selected {
+      border-color: var(--accent-gold);
+      background: rgba(232, 162, 40, 0.1);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .service-code-badge {
+      width: 48px;
+      height: 48px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--accent-gold);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .service-card.selected .service-code-badge {
+      background: var(--accent-gold);
+      color: #0f172a;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .card-price {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .promo-badge {
+      background: var(--promo-bg);
+      color: var(--promo-text);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .selected-check {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 16px;
+      height: 16px;
+      background: var(--accent-gold);
+      color: #0f172a;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .service-card.selected .selected-check {
+      display: flex;
+    }
+
+
+    /* ==========================================
+   HOVER-ONLY AUTO-HIDE SCROLLBAR WITH FADE
+   ========================================== */
+
+    /* Target scrollable containers (e.g., ticket-items-container, grid-container) */
+    .ticket-items-container,
+    .grid-container,
+    .quick-tap-row {
+      /* Reserve space to prevent layout shifts during scrollbar appearance */
+      scrollbar-gutter: stable;
+
+      /* Modern Standard Properties (Firefox / Chromium standard) */
+      scrollbar-color: transparent transparent;
+      transition: scrollbar-color 0.3s ease-in-out;
+    }
+
+    /* Reveal standard scrollbar thumb on hover */
+    .ticket-items-container:hover,
+    .grid-container:hover,
+    .quick-tap-row:hover {
+      scrollbar-color: var(--bg-card-hover, #475569) transparent;
+    }
+
+    /* WebKit Engine Specific (Chrome, Safari, Edge) */
+    .ticket-items-container::-webkit-scrollbar,
+    .grid-container::-webkit-scrollbar,
+    .quick-tap-row::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .ticket-items-container::-webkit-scrollbar-track,
+    .grid-container::-webkit-scrollbar-track,
+    .quick-tap-row::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .ticket-items-container::-webkit-scrollbar-thumb,
+    .grid-container::-webkit-scrollbar-thumb,
+    .quick-tap-row::-webkit-scrollbar-thumb {
+      background-color: transparent;
+      border-radius: 9999px;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    /* Fade thumb in on container hover */
+    .ticket-items-container:hover::-webkit-scrollbar-thumb,
+    .grid-container:hover::-webkit-scrollbar-thumb,
+    .quick-tap-row:hover::-webkit-scrollbar-thumb {
+      background-color: var(--bg-card-hover, #475569);
+    }
+
+    /* Optional hover highlight on the scrollbar thumb itself */
+    .ticket-items-container::-webkit-scrollbar-thumb:hover,
+    .grid-container::-webkit-scrollbar-thumb:hover,
+    .quick-tap-row::-webkit-scrollbar-thumb:hover {
+      background-color: var(--accent-gold, #e8a228);
+    }
+
+
+    /* ==========================================
+   EDITABLE PRICE INPUT STYLES
+   ========================================== */
+    .price-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 2px 6px;
+      transition: all 0.2s ease;
+    }
+
+    .price-input-wrapper:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .price-input-wrapper:focus-within {
+      background: rgba(0, 0, 0, 0.3);
+      border-color: var(--accent-gold, #e8a228);
+    }
+
+    .currency-symbol {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-muted, #94a3b8);
+    }
+
+    .item-price-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      width: 70px;
+      text-align: right;
+      /* Remove number input spinners */
+      -moz-appearance: textfield;
+    }
+
+    .item-price-input::-webkit-outer-spin-button,
+    .item-price-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* ==========================================
+   TICKET ACTION FOOTER & SAVE BUTTON
+   ========================================== */
+    .ticket-footer-actions {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-card, #1e293b);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-save-ticket {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-save-ticket:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    .btn-save-ticket:active {
+      transform: scale(0.98);
+    }
+
+    .btn-checkout {
+      flex: 1;
+      padding: 10px 16px;
+      background: var(--accent-gold, #e8a228);
+      color: #0f172a;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .btn-checkout:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TERMINAL ENTRY TRIGGER -->
+  <button class="btn-launch-terminal" onclick="openIntegratedModal()">💈 Open Active POS Ticket (#1024)</button>
+
+  <!-- ==========================================
+       EMBEDDED SIDE-PANEL MODAL (SINGLE CANVAS)
+       ========================================== -->
+  <div id="integratedModal" class="modal-overlay hidden">
+    <div class="integrated-modal-container">
+
+      <!-- Top Integrated Header -->
+      <div class="modal-top-header">
+        <h2>
+          <span>Ticket #1024</span>
+          <span
+            style="font-size: 12px; background: var(--bg-card); padding: 4px 10px; border-radius: 20px; color: var(--accent-gold); border: 1px solid var(--border-color);">
+            In-Service
+          </span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeIntegratedModal()">&times;</button>
+      </div>
+
+      <!-- Main Body Grid: Ticket Summary Left | Services Drawer Right -->
+      <div class="integrated-split-body">
+
+        <!-- LEFT PANEL: TICKET SUMMARY & CUSTOMER/BARBER CONTROLS -->
+        <div class="ticket-panel">
+
+          <div class="ticket-header-info">
+            <div class="meta-header-row">
+              <span class="meta-title">Client & Staff Details</span>
+              <button class="btn-toggle-edit" onclick="toggleCustomerEdit()">
+                <span id="editBtnIcon">✏️</span> <span id="editBtnText">Edit Details</span>
+              </button>
+            </div>
+
+            <!-- VIEW MODE: Static Text Display -->
+            <div id="customerDisplayView" class="customer-display-view">
+              <div class="customer-name-display" id="displayName">John Doe</div>
+              <div class="customer-sub-meta">
+                <span>📱 <span id="displayPhone">0917-123-4567</span></span>
+                <span>💈 <span class="meta-tag" id="displayBarber">Marcus</span></span>
+                <span>🏷️ <span class="meta-tag" id="displayType">Walk-In</span></span>
+              </div>
+            </div>
+
+            <!-- EDIT MODE: Inline Form Fields (Hidden by default) -->
+            <div id="customerEditForm" class="customer-edit-form hidden">
+              <div class="form-group full-width">
+                <label>Customer Name</label>
+                <input type="text" id="inputName" value="John Doe">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="inputPhone" value="0917-123-4567">
+              </div>
+              <div class="form-group">
+                <label>Assigned Barber</label>
+                <select id="selectBarber" onchange="handleBarberChange(this.value)">
+                  <!-- Dynamic options injected on initialization -->
+                </select>
+              </div>
+              <div class="form-group full-width">
+                <label>Service Type</label>
+                <select id="selectType">
+                  <option value="Walk-In">Walk-In</option>
+                  <option value="Appointment">Appointment</option>
+                  <option value="VIP Regular">VIP Regular</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Active Ticket Line Items Container -->
+          <div id="ticketItemsContainer" class="ticket-items-container">
+            <!-- Dynamic Line Items Rendered Here -->
+          </div>
+
+          <!-- Fixed Checkout Totals Footer -->
+          <div class="ticket-checkout-footer">
+            <div class="calculation-row">
+              <span>Subtotal</span>
+              <span id="subtotalVal">₱0.00</span>
+            </div>
+            <div class="calculation-row">
+              <span>Tax / Fees</span>
+              <span>₱0.00</span>
+            </div>
+            <div class="calculation-row total-row">
+              <span>Total</span>
+              <span class="total-amount" id="totalVal">₱0.00</span>
+            </div>
+
+            <!-- Ticket Footer Actions -->
+            <div class="ticket-footer-actions">
+              <button type="button" class="btn-save-ticket" onclick="saveTicketDraft()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Ticket
+              </button>
+
+              <button type="button" class="btn-checkout" onclick="proceedToPayment()">
+                Proceed to Payment
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: EMBEDDED SERVICE SELECTION DRAWER -->
+        <div class="services-drawer">
+
+          <!-- Search Bar -->
+          <div class="drawer-search-bar">
+            <div class="search-box">
+              <input type="text" id="searchInput" placeholder="Search service name or code (HC, BT, HS)..."
+                oninput="handleSearch()">
+            </div>
+          </div>
+
+          <!-- Top Performers Row -->
+          <div class="quick-tap-section">
+            <div class="quick-tap-title">⚡ Quick-Tap</div>
+            <div id="quickTapRow" class="quick-tap-row"></div>
+          </div>
+
+          <!-- Cluster Tab Filters -->
+          <div class="cluster-tabs-bar" id="clusterTabs">
+            <!-- <button class="cluster-tab active" data-cluster="Popular" onclick="filterCluster('Popular')">★
+              Popular</button>
+            <button class="cluster-tab" data-cluster="All" onclick="filterCluster('All')">All Items</button>
+            <button class="cluster-tab" data-cluster="Service" onclick="filterCluster('Service')">Service</button>
+            <button class="cluster-tab" data-cluster="Retail" onclick="filterCluster('Retail')">Retail</button>
+            <button class="cluster-tab" data-cluster="Consumables"
+              onclick="filterCluster('Consumables')">Consumables</button>
+            <button class="cluster-tab" data-cluster="Service-promo"
+              onclick="filterCluster('Service-promo')">Promos</button> -->
+          </div>
+
+          <!-- Service Cards Grid -->
+          <div id="servicesGrid" class="grid-container"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+  <script src="tusar_universal_scripts.js"></script>
+  <script src="universal_scripts.js"></script>
+  <script src="mock_data.js"></script>
+  <script src="init.js"></script>
+  <script src="app.js"></script>
+  <script src="ticket_modalv2.js"></script>
+
+  <script>
+
+  </script>
+</body>
+
+</html>

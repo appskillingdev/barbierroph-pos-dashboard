@@ -1,0 +1,592 @@
+ :root {
+   --bg-primary: #0f172a;
+   --bg-surface: #1e293b;
+   --bg-card: #334155;
+   --bg-card-hover: #475569;
+   --border-color: #475569;
+   --accent-gold: #e8a228;
+   --accent-gold-hover: #d6911e;
+   --accent-blue: #3b82f6;
+   --text-main: #f8fafc;
+   --text-muted: #94a3b8;
+   --promo-bg: #854d0e;
+   --promo-text: #fef08a;
+   --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+ }
+
+ * {
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+   user-select: none;
+ }
+
+ body {
+   background-color: #020617;
+   color: var(--text-main);
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   min-height: 100vh;
+   padding: 20px;
+ }
+
+ /* Terminal Demo Controller Bar */
+ .demo-bar {
+   margin-bottom: 20px;
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   background: var(--bg-surface);
+   padding: 10px 20px;
+   border-radius: 8px;
+   border: 1px solid var(--border-color);
+ }
+
+ .demo-bar label {
+   font-size: 14px;
+   font-weight: 600;
+   color: var(--accent-gold);
+ }
+
+ .mode-switch-btn {
+   background: var(--bg-card);
+   color: var(--text-main);
+   border: 1px solid var(--border-color);
+   padding: 6px 14px;
+   border-radius: 6px;
+   font-size: 13px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: all 0.2s ease;
+ }
+
+ .mode-switch-btn.active {
+   background: var(--accent-gold);
+   color: #0f172a;
+   border-color: var(--accent-gold);
+ }
+
+ /* ==========================================
+       MODAL BASE & CONTAINER
+       ========================================== */
+ .pos-modal-overlay {
+   position: relative;
+   width: 100%;
+   max-width: 960px;
+   height: 780px;
+   background: var(--bg-primary);
+   border-radius: 12px;
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-lg);
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+ }
+
+ /* Modal Header */
+ .modal-header {
+   padding: 16px 20px;
+   background: var(--bg-surface);
+   border-bottom: 1px solid var(--border-color);
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+ }
+
+ .modal-header .title-area h2 {
+   font-size: 20px;
+   font-weight: 800;
+   letter-spacing: 0.5px;
+   color: var(--text-main);
+ }
+
+ .modal-header .title-area .mode-badge {
+   display: inline-block;
+   font-size: 11px;
+   font-weight: 800;
+   text-transform: uppercase;
+   padding: 2px 8px;
+   border-radius: 4px;
+   margin-left: 8px;
+   background: var(--accent-blue);
+   color: #fff;
+ }
+
+ /* Search Input */
+ .search-box {
+   position: relative;
+   width: 320px;
+ }
+
+ .search-box input {
+   width: 100%;
+   padding: 10px 14px 10px 36px;
+   background: var(--bg-primary);
+   border: 1px solid var(--border-color);
+   border-radius: 8px;
+   color: var(--text-main);
+   font-size: 14px;
+   outline: none;
+   transition: border-color 0.2s;
+ }
+
+ .search-box input:focus {
+   border-color: var(--accent-gold);
+ }
+
+ .search-box::before {
+   content: '🔍';
+   position: absolute;
+   left: 12px;
+   top: 50%;
+   transform: translateY(-50%);
+   font-size: 12px;
+   opacity: 0.6;
+ }
+
+ /* ==========================================
+       FEATURE 1: QUICK-TAP BAR (TOP PERFORMERS)
+       ========================================== */
+ .quick-tap-section {
+   background: var(--bg-surface);
+   padding: 12px 20px;
+   border-bottom: 1px solid var(--border-color);
+ }
+
+ .quick-tap-title {
+   font-size: 11px;
+   font-weight: 800;
+   text-transform: uppercase;
+   letter-spacing: 0.8px;
+   color: var(--accent-gold);
+   margin-bottom: 8px;
+   display: flex;
+   align-items: center;
+   gap: 6px;
+ }
+
+ .quick-tap-row {
+   display: flex;
+   gap: 10px;
+   overflow-x: auto;
+   padding-bottom: 2px;
+ }
+
+ .quick-tap-btn {
+   background: var(--bg-card);
+   border: 1px solid var(--border-color);
+   border-radius: 8px;
+   padding: 8px 12px;
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   cursor: pointer;
+   white-space: nowrap;
+   transition: all 0.15s ease;
+   min-width: 140px;
+ }
+
+ .quick-tap-btn:hover {
+   background: var(--bg-card-hover);
+   border-color: var(--accent-gold);
+ }
+
+ .quick-tap-badge {
+   width: 32px;
+   height: 32px;
+   background: var(--accent-gold);
+   color: #0f172a;
+   font-weight: 900;
+   font-size: 12px;
+   border-radius: 6px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-shrink: 0;
+ }
+
+ .quick-tap-info {
+   display: flex;
+   flex-direction: column;
+   text-align: left;
+ }
+
+ .quick-tap-name {
+   font-size: 12px;
+   font-weight: 700;
+   color: var(--text-main);
+ }
+
+ .quick-tap-price {
+   font-size: 11px;
+   font-weight: 800;
+   color: var(--accent-gold);
+ }
+
+ /* ==========================================
+       FEATURE 2: CLUSTER TAB NAVIGATION
+       ========================================== */
+ .cluster-tabs-bar {
+   display: flex;
+   background: var(--bg-surface);
+   padding: 0 20px;
+   border-bottom: 1px solid var(--border-color);
+   gap: 4px;
+   overflow-x: auto;
+ }
+
+ .cluster-tab {
+   padding: 12px 18px;
+   background: transparent;
+   border: none;
+   border-bottom: 3px solid transparent;
+   color: var(--text-muted);
+   font-size: 13px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   white-space: nowrap;
+ }
+
+ .cluster-tab:hover {
+   color: var(--text-main);
+ }
+
+ .cluster-tab.active {
+   color: var(--accent-gold);
+   border-bottom-color: var(--accent-gold);
+   background: rgba(232, 162, 40, 0.05);
+ }
+
+ /* ==========================================
+       FEATURE 4: SERVICE SELECTION GRID
+       ========================================== */
+ .grid-container {
+   flex: 1;
+   padding: 20px;
+   overflow-y: auto;
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+   gap: 16px;
+   align-content: start;
+ }
+
+ /* Custom Scrollbar for Grid */
+ .grid-container::-webkit-scrollbar {
+   width: 8px;
+ }
+
+ .grid-container::-webkit-scrollbar-track {
+   background: var(--bg-primary);
+ }
+
+ .grid-container::-webkit-scrollbar-thumb {
+   background: var(--border-color);
+   border-radius: 4px;
+ }
+
+ .service-card {
+   background: var(--bg-surface);
+   border: 2px solid var(--border-color);
+   border-radius: 10px;
+   padding: 14px;
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+   gap: 12px;
+   cursor: pointer;
+   position: relative;
+   transition: all 0.15s ease-in-out;
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+ }
+
+ .service-card:hover {
+   transform: translateY(-2px);
+   border-color: var(--text-muted);
+   background: var(--bg-card);
+ }
+
+ /* Active Selected Card State */
+ .service-card.selected {
+   border-color: var(--accent-gold);
+   background: rgba(232, 162, 40, 0.1);
+   box-shadow: 0 0 12px rgba(232, 162, 40, 0.25);
+ }
+
+ .card-top {
+   display: flex;
+   align-items: flex-start;
+   gap: 12px;
+ }
+
+ /* Square Code Badge (Replaceable with <img>) */
+ .service-code-badge {
+   width: 44px;
+   height: 44px;
+   background: var(--bg-card);
+   border: 1px solid var(--border-color);
+   color: var(--accent-gold);
+   border-radius: 8px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-weight: 900;
+   font-size: 15px;
+   letter-spacing: 0.5px;
+   flex-shrink: 0;
+   overflow: hidden;
+ }
+
+ .service-card.selected .service-code-badge {
+   background: var(--accent-gold);
+   color: #0f172a;
+ }
+
+ .card-meta {
+   display: flex;
+   flex-direction: column;
+   gap: 2px;
+ }
+
+ .card-title {
+   font-size: 14px;
+   font-weight: 700;
+   color: var(--text-main);
+   line-height: 1.25;
+ }
+
+ .card-category {
+   font-size: 11px;
+   color: var(--text-muted);
+   font-weight: 600;
+ }
+
+ .card-bottom {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-top: 4px;
+ }
+
+ .card-price {
+   font-size: 16px;
+   font-weight: 800;
+   color: var(--text-main);
+ }
+
+ .service-card.selected .card-price {
+   color: var(--accent-gold);
+ }
+
+ /* Promo Badge */
+ .promo-badge {
+   background: var(--promo-bg);
+   color: var(--promo-text);
+   font-size: 10px;
+   font-weight: 800;
+   padding: 3px 6px;
+   border-radius: 4px;
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+ }
+
+ /* Selection Indicator Checkmark */
+ .selected-check {
+   position: absolute;
+   top: 8px;
+   right: 8px;
+   width: 18px;
+   height: 18px;
+   background: var(--accent-gold);
+   color: #0f172a;
+   border-radius: 50%;
+   display: none;
+   align-items: center;
+   justify-content: center;
+   font-size: 11px;
+   font-weight: 900;
+ }
+
+ .service-card.selected .selected-check {
+   display: flex;
+ }
+
+ /* Empty Grid State */
+ .empty-grid-msg {
+   grid-column: 1 / -1;
+   text-align: center;
+   padding: 60px 20px;
+   color: var(--text-muted);
+   font-size: 15px;
+ }
+
+ /* ==========================================
+       FEATURE 5A: SELECTION MODE SUMMARY BAR
+       ========================================== */
+ .transaction-summary-bar {
+   background: var(--bg-surface);
+   border-top: 1px solid var(--border-color);
+   padding: 14px 24px;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+ }
+
+ .summary-info {
+   display: flex;
+   align-items: center;
+   gap: 20px;
+ }
+
+ .summary-count {
+   font-size: 13px;
+   color: var(--text-muted);
+   font-weight: 600;
+ }
+
+ .summary-count span {
+   color: var(--text-main);
+   font-weight: 800;
+ }
+
+ .summary-total {
+   font-size: 20px;
+   font-weight: 900;
+   color: var(--accent-gold);
+ }
+
+ .summary-actions {
+   display: flex;
+   gap: 12px;
+ }
+
+ .btn-secondary {
+   background: transparent;
+   border: 1px solid var(--border-color);
+   color: var(--text-muted);
+   padding: 10px 18px;
+   border-radius: 8px;
+   font-size: 13px;
+   font-weight: 700;
+   cursor: pointer;
+ }
+
+ .btn-secondary:hover {
+   background: var(--bg-card);
+   color: var(--text-main);
+ }
+
+ .btn-checkout {
+   background: var(--accent-gold);
+   color: #0f172a;
+   border: none;
+   padding: 10px 24px;
+   border-radius: 8px;
+   font-size: 14px;
+   font-weight: 800;
+   cursor: pointer;
+   transition: background 0.15s;
+ }
+
+ .btn-checkout:hover {
+   background: var(--accent-gold-hover);
+ }
+
+ /* Hidden element utility */
+ .hidden {
+   display: none !important;
+ }
+
+ /* ==========================================
+       FEATURE 5B: DISPLAY MODE DETAIL OVERLAY
+       ========================================== */
+ .detail-overlay {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(15, 23, 42, 0.85);
+   backdrop-filter: blur(4px);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 100;
+   padding: 20px;
+ }
+
+ .detail-card {
+   background: var(--bg-surface);
+   border: 1px solid var(--border-color);
+   border-radius: 12px;
+   width: 100%;
+   max-width: 480px;
+   padding: 24px;
+   box-shadow: var(--shadow-lg);
+   display: flex;
+   flex-direction: column;
+   gap: 16px;
+ }
+
+ .detail-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+ }
+
+ .detail-title-group {
+   display: flex;
+   gap: 12px;
+   align-items: center;
+ }
+
+ .detail-close-btn {
+   background: none;
+   border: none;
+   color: var(--text-muted);
+   font-size: 20px;
+   cursor: pointer;
+ }
+
+ .detail-close-btn:hover {
+   color: var(--text-main);
+ }
+
+ .detail-description {
+   font-size: 14px;
+   color: var(--text-muted);
+   line-height: 1.5;
+   background: var(--bg-primary);
+   padding: 12px;
+   border-radius: 8px;
+   border: 1px solid var(--border-color);
+ }
+
+ .detail-meta-grid {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 12px;
+ }
+
+ .detail-meta-item {
+   display: flex;
+   flex-direction: column;
+   gap: 2px;
+ }
+
+ .detail-meta-label {
+   font-size: 11px;
+   font-weight: 700;
+   text-transform: uppercase;
+   color: var(--text-muted);
+ }
+
+ .detail-meta-val {
+   font-size: 14px;
+   font-weight: 700;
+   color: var(--text-main);
+ }

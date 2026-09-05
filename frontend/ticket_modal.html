@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS Terminal - Integrated Ticket & Service Drawer Modal</title>
+  <style>
+    /* ==========================================
+       CSS VARIABLES & CORE POS THEME
+       ========================================== */
+    :root {
+      --bg-primary: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-card: #334155;
+      --bg-card-hover: #475569;
+      --border-color: #334155;
+      --accent-gold: #e8a228;
+      --accent-gold-hover: #d6911e;
+      --accent-blue: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --promo-bg: #854d0e;
+      --promo-text: #fef08a;
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #020617;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .btn-launch-terminal {
+      background: var(--accent-gold);
+      color: #0f172a;
+      border: none;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.15s, background 0.15s;
+    }
+
+    .btn-launch-terminal:hover {
+      background: var(--accent-gold-hover);
+      transform: translateY(-2px);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ==========================================
+       WIDE INTEGRATED MODAL BACKDROP & CONTAINER
+       ========================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .integrated-modal-container {
+      width: 100%;
+      max-width: 1240px;
+      height: 820px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      display: grid;
+      grid-template-rows: 60px 1fr;
+      overflow: hidden;
+    }
+
+    /* Top Modal Navigation Header */
+    .modal-top-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-top-header h2 {
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* Integrated Split Layout Grid */
+    .integrated-split-body {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ==========================================
+       LEFT PANEL: ACTIVE TICKET SUMMARY
+       ========================================== */
+    .ticket-panel {
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .ticket-header-info {
+      padding: 16px 20px;
+      background: rgba(30, 41, 59, 0.5);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .customer-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .customer-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .barber-tag {
+      font-size: 12px;
+      background: var(--bg-card);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Scrollable Ticket Line Items */
+    .ticket-items-container {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ticket-item-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.15s;
+    }
+
+    .ticket-item-card:hover {
+      border-color: var(--text-muted);
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .item-code-badge {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-card);
+      color: var(--accent-gold);
+      font-weight: 800;
+      font-size: 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .item-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .item-subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .item-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .item-price {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .item-remove-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .item-remove-btn:hover {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Fixed Bottom Ticket Checkout Section */
+    .ticket-checkout-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-color);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .calculation-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .calculation-row.total-row {
+      border-top: 1px dashed var(--border-color);
+      padding-top: 10px;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .total-amount {
+      color: var(--accent-gold);
+    }
+
+    .btn-checkout {
+      background: var(--accent-gold);
+      color: #0f172a;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s;
+    }
+
+    .btn-checkout:hover {
+      background: var(--accent-gold-hover);
+    }
+
+    /* ==========================================
+       RIGHT PANEL: EMBEDDED SERVICE SELECTION DRAWER
+       ========================================== */
+    .services-drawer {
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Drawer Header / Search Bar */
+    .drawer-search-bar {
+      padding: 12px 20px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 36px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-gold);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    /* Feature 1: Quick-Tap Top Performers Row */
+    .quick-tap-section {
+      background: var(--bg-surface);
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .quick-tap-title {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+    }
+
+    .quick-tap-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .quick-tap-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .quick-tap-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-gold);
+    }
+
+    .quick-tap-badge {
+      width: 26px; height: 26px;
+      background: var(--accent-gold);
+      color: #0f172a;
+      font-weight: 900;
+      font-size: 11px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Feature 2: Cluster Tab Navigation */
+    .cluster-tabs-bar {
+      display: flex;
+      background: var(--bg-surface);
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .cluster-tab {
+      padding: 10px 14px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cluster-tab.active {
+      color: var(--accent-gold);
+      border-bottom-color: var(--accent-gold);
+      background: rgba(232, 162, 40, 0.05);
+    }
+
+    /* Feature 4: Service Cards Grid */
+    .grid-container {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      align-content: start;
+    }
+
+    .service-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .service-card:hover {
+      background: var(--bg-card);
+      border-color: var(--text-muted);
+    }
+
+    .service-card.selected {
+      border-color: var(--accent-gold);
+      background: rgba(232, 162, 40, 0.1);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .service-code-badge {
+      width: 36px; height: 36px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--accent-gold);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .service-card.selected .service-code-badge {
+      background: var(--accent-gold);
+      color: #0f172a;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .card-price {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .promo-badge {
+      background: var(--promo-bg);
+      color: var(--promo-text);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .selected-check {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 16px; height: 16px;
+      background: var(--accent-gold);
+      color: #0f172a;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .service-card.selected .selected-check {
+      display: flex;
+    }
+
+    /* Detail View Modal Overlay (inside the drawer context) */
+    .detail-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+      padding: 20px;
+    }
+
+    .detail-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TERMINAL ENTRY TRIGGER -->
+  <button class="btn-launch-terminal" onclick="openIntegratedModal()">💈 Open Active POS Ticket (#1024)</button>
+
+  <!-- ==========================================
+       EMBEDDED SIDE-PANEL MODAL (SINGLE CANVAS)
+       ========================================== -->
+  <div id="integratedModal" class="modal-overlay hidden">
+    <div class="integrated-modal-container">
+      
+      <!-- Top Integrated Header -->
+      <div class="modal-top-header">
+        <h2>
+          <span>Ticket #1024</span>
+          <span style="font-size: 12px; background: var(--bg-card); padding: 4px 10px; border-radius: 20px; color: var(--accent-gold); border: 1px solid var(--border-color);">
+            In-Service
+          </span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeIntegratedModal()">&times;</button>
+      </div>
+
+      <!-- Main Body Grid: Ticket Summary Left | Services Drawer Right -->
+      <div class="integrated-split-body">
+        
+        <!-- LEFT PANEL: TICKET SUMMARY -->
+        <div class="ticket-panel">
+          <div class="ticket-header-info">
+            <div class="customer-meta">
+              <span class="customer-name">John Doe</span>
+              <span class="barber-tag">Barber: Marcus</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              Booked: 2:30 PM &bull; Walk-In
+            </div>
+          </div>
+
+          <!-- Active Ticket Line Items Container -->
+          <div id="ticketItemsContainer" class="ticket-items-container">
+            <!-- Dynamic Line Items Rendered Here -->
+          </div>
+
+          <!-- Fixed Checkout Totals Footer -->
+          <div class="ticket-checkout-footer">
+            <div class="calculation-row">
+              <span>Subtotal</span>
+              <span id="subtotalVal">₱0.00</span>
+            </div>
+            <div class="calculation-row">
+              <span>Tax / Fees</span>
+              <span>₱0.00</span>
+            </div>
+            <div class="calculation-row total-row">
+              <span>Total</span>
+              <span class="total-amount" id="totalVal">₱0.00</span>
+            </div>
+            <button class="btn-checkout" onclick="processCheckout()">
+              Proceed to Payment
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: EMBEDDED SERVICE SELECTION DRAWER -->
+        <div class="services-drawer">
+          
+          <!-- Search Bar -->
+          <div class="drawer-search-bar">
+            <div class="search-box">
+              <input type="text" id="searchInput" placeholder="Search service name or code (HC, BT, HS)..." oninput="handleSearch()">
+            </div>
+          </div>
+
+          <!-- Feature 1: Quick-Tap Top Performers -->
+          <div class="quick-tap-section">
+            <div class="quick-tap-title">⚡ Quick-Tap Top Performers</div>
+            <div id="quickTapRow" class="quick-tap-row">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Feature 2: Cluster Tab Filters -->
+          <div class="cluster-tabs-bar" id="clusterTabs">
+            <button class="cluster-tab active" data-cluster="Popular" onclick="filterCluster('Popular')">★ Popular</button>
+            <button class="cluster-tab" data-cluster="All" onclick="filterCluster('All')">All Items</button>
+            <button class="cluster-tab" data-cluster="Service" onclick="filterCluster('Service')">Service</button>
+            <button class="cluster-tab" data-cluster="Retail" onclick="filterCluster('Retail')">Retail</button>
+            <button class="cluster-tab" data-cluster="Consumables" onclick="filterCluster('Consumables')">Consumables</button>
+            <button class="cluster-tab" data-cluster="Service-promo" onclick="filterCluster('Service-promo')">Promos</button>
+          </div>
+
+          <!-- Feature 4: Service Cards Grid -->
+          <div id="servicesGrid" class="grid-container">
+            <!-- Rendered dynamically -->
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================
+       MOCK DATABASE & DYNAMIC PRICE MAP
+       ========================================== */
+    const mockServicesDB = [
+      { service_code: "HC", category: "Haircuts", cluster: "Service", service_name: "Signature Haircut", service_description: "Precision haircut tailored to head shape including wash, blow-dry, and styling with premium pomade.", is_promo: false, is_popular: true },
+      { service_code: "BT", category: "Beard", cluster: "Service", service_name: "Beard Trim & Sculpt", service_description: "Detailed beard shaping, razor line edge-up, and hot towel treatment with beard oil application.", is_promo: false, is_popular: true },
+      { service_code: "HS", category: "Grooming", cluster: "Service", service_name: "Hot Towel Shave", service_description: "Traditional straight-razor shave with pre-shave essential oils, hot towels, and soothing balm.", is_promo: false, is_popular: false },
+      { service_code: "PM", category: "Haircare", cluster: "Retail", service_name: "Matte Clay Pomade", service_description: "High hold, low shine water-based styling clay for textured, natural look (100g).", is_promo: false, is_popular: true },
+      { service_code: "BO", category: "Beardcare", cluster: "Retail", service_name: "Cedarwood Beard Oil", service_description: "Nourishing organic oil blend to hydrate skin and soften coarse facial hair (50ml).", is_promo: false, is_popular: false },
+      { service_code: "COMBO1", category: "Packages", cluster: "Service-promo", service_name: "Executive Cut + Beard", service_description: "Full signature haircut paired with beard sculpt and hot towel treatment at a bundle rate.", is_promo: true, is_popular: true }
+    ];
+
+    const externalPriceDB = {
+      "HC": 350.00,
+      "BT": 200.00,
+      "HS": 250.00,
+      "PM": 550.00,
+      "BO": 420.00,
+      "COMBO1": 480.00
+    };
+
+    /* ==========================================
+       APP STATE MANAGEMENT
+       ========================================== */
+    let activeTicket = {
+      ticketId: "1024",
+      customer: "John Doe",
+      items: [
+        { service_code: "HC", service_name: "Signature Haircut", price: 350.00 }
+      ]
+    };
+
+    let currentCluster = "Popular";
+    let searchQuery = "";
+
+    /* ==========================================
+       MODAL INITIALIZATION
+       ========================================== */
+    function openIntegratedModal() {
+      renderTicketPanel();
+      renderQuickTapBar();
+      renderServicesGrid();
+      document.getElementById('integratedModal').classList.remove('hidden');
+
+      // Shift input focus to search bar for barcode scanners/keyboard input
+      setTimeout(() => {
+        document.getElementById('searchInput').focus();
+      }, 100);
+    }
+
+    function closeIntegratedModal() {
+      document.getElementById('integratedModal').classList.add('hidden');
+    }
+
+    /* ==========================================
+       LEFT PANEL: TICKET SYNCHRONIZATION
+       ========================================== */
+    function renderTicketPanel() {
+      const container = document.getElementById('ticketItemsContainer');
+      const subtotalEl = document.getElementById('subtotalVal');
+      const totalEl = document.getElementById('totalVal');
+
+      if (activeTicket.items.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 40px 10px; font-size: 13px;">
+            No items added yet.<br>Tap services from the right menu to add.
+          </div>
+        `;
+        subtotalEl.textContent = "₱0.00";
+        totalEl.textContent = "₱0.00";
+        return;
+      }
+
+      let subtotal = 0;
+      container.innerHTML = activeTicket.items.map((item, index) => {
+        subtotal += item.price;
+        return `
+          <div class="ticket-item-card">
+            <div class="item-left">
+              <div class="item-code-badge">${item.service_code}</div>
+              <div>
+                <div class="item-name">${item.service_name}</div>
+                <div class="item-subtext">1x &bull; Regular Pricing</div>
+              </div>
+            </div>
+            <div class="item-right">
+              <span class="item-price">₱${item.price.toFixed(2)}</span>
+              <button class="item-remove-btn" onclick="removeTicketItem(${index})">&times;</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
+      totalEl.textContent = `₱${subtotal.toFixed(2)}`;
+    }
+
+    function removeTicketItem(index) {
+      activeTicket.items.splice(index, 1);
+      renderTicketPanel();
+      renderServicesGrid(); // Sync grid highlight state
+    }
+
+    /* ==========================================
+       RIGHT PANEL: SERVICE DRAWER LOGIC
+       ========================================== */
+    function renderQuickTapBar() {
+      const container = document.getElementById('quickTapRow');
+      const popular = mockServicesDB.filter(s => s.is_popular);
+
+      container.innerHTML = popular.map(item => `
+        <button class="quick-tap-btn" onclick="toggleServiceItem('${item.service_code}')">
+          <div class="quick-tap-badge">${item.service_code}</div>
+          <div style="text-align: left;">
+            <div style="font-size: 12px; font-weight: 700;">${item.service_name}</div>
+            <div style="font-size: 11px; color: var(--accent-gold); font-weight: 800;">₱${externalPriceDB[item.service_code].toFixed(2)}</div>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    function filterCluster(clusterName) {
+      currentCluster = clusterName;
+      document.querySelectorAll('.cluster-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.cluster === clusterName);
+      });
+      renderServicesGrid();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+      renderServicesGrid();
+    }
+
+    function renderServicesGrid() {
+      const grid = document.getElementById('servicesGrid');
+
+      // Identify currently selected codes in active ticket
+      const activeCodes = new Set(activeTicket.items.map(i => i.service_code));
+
+      const filtered = mockServicesDB.filter(item => {
+        let matchesCluster = false;
+        if (currentCluster === "Popular") matchesCluster = item.is_popular;
+        else if (currentCluster === "All") matchesCluster = true;
+        else matchesCluster = item.cluster === currentCluster;
+
+        const matchesSearch = item.service_name.toLowerCase().includes(searchQuery) || 
+                              item.service_code.toLowerCase().includes(searchQuery);
+
+        return matchesCluster && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No services found matching search query.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+        const isSelected = activeCodes.has(item.service_code);
+        const price = externalPriceDB[item.service_code] || 0.00;
+
+        return `
+          <div class="service-card ${isSelected ? 'selected' : ''}" onclick="toggleServiceItem('${item.service_code}')">
+            <div class="selected-check">✓</div>
+            <div class="card-top">
+              <div class="service-code-badge">${item.service_code}</div>
+              <div>
+                <div class="card-title">${item.service_name}</div>
+                <div style="font-size: 10px; color: var(--text-muted); font-weight: 600;">${item.category}</div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="card-price">₱${price.toFixed(2)}</span>
+              ${item.is_promo ? `<span class="promo-badge">PROMO</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Toggle items directly into ticket array
+    function toggleServiceItem(code) {
+      const existingIndex = activeTicket.items.findIndex(i => i.service_code === code);
+
+      if (existingIndex > -1) {
+        // If already added, remove it
+        activeTicket.items.splice(existingIndex, 1);
+      } else {
+        // If not added, insert it
+        const service = mockServicesDB.find(s => s.service_code === code);
+        if (service) {
+          activeTicket.items.push({
+            service_code: service.service_code,
+            service_name: service.service_name,
+            price: externalPriceDB[service.service_code] || 0.00
+          });
+        }
+      }
+
+      // Re-render both sides instantaneously
+      renderTicketPanel();
+      renderServicesGrid();
+    }
+
+    function processCheckout() {
+      if (activeTicket.items.length === 0) {
+        alert("Cannot process checkout with 0 items.");
+        return;
+      }
+      alert(`Proceeding to POS Payment Gateway for Ticket #${activeTicket.ticketId}`);
+    }
+
+    /* Keyboard ESC Handler */
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeIntegratedModal();
+      }
+    });
+  </script>
+</body>
+</html>

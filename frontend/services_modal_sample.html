@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services Selection Modal POS Terminal</title>
+
+  <!-- <link rel="stylesheet" href="services_selection.css" /> -->
+ 
+</head>
+<body>
+
+  <!-- TERMINAL TEST CONTROLLER BAR -->
+  <div class="demo-bar">
+    <label>Modal Active Mode:</label>
+    <button class="mode-switch-btn active" onclick="setTerminalMode('selection')">Selection Mode (POS Order)</button>
+    <button class="mode-switch-btn" onclick="setTerminalMode('display')">Display Mode (Detail Inspection)</button>
+  </div>
+
+  <!-- MAIN POS SERVICES SELECTION MODAL -->
+  <div id="servicesModal" class="pos-modal-overlay" data-modal-mode="selection">
+    
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="title-area">
+        <h2>Services & Products</h2>
+        <span id="modeBadge" class="mode-badge">SELECTION MODE</span>
+      </div>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search code or service name..." oninput="handleSearch()">
+      </div>
+    </div>
+
+    <!-- 1. Quick-Tap Bar (Top Performers) -->
+    <div class="quick-tap-section">
+      <div class="quick-tap-title">⚡ Quick-Tap Top Performers</div>
+      <div id="quickTapRow" class="quick-tap-row">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- 2. Cluster Tab Navigation -->
+    <div class="cluster-tabs-bar" id="clusterTabs">
+      <button class="cluster-tab active" data-cluster="Popular" onclick="filterCluster('Popular')">★ Popular</button>
+      <button class="cluster-tab" data-cluster="All" onclick="filterCluster('All')">All Items</button>
+      <button class="cluster-tab" data-cluster="Service" onclick="filterCluster('Service')">Service</button>
+      <button class="cluster-tab" data-cluster="Retail" onclick="filterCluster('Retail')">Retail</button>
+      <button class="cluster-tab" data-cluster="Consumables" onclick="filterCluster('Consumables')">Consumables</button>
+      <button class="cluster-tab" data-cluster="Service-promo" onclick="filterCluster('Service-promo')">Promos</button>
+    </div>
+
+    <!-- 4. Service Selection Grid -->
+    <div id="servicesGrid" class="grid-container">
+      <!-- Dynamic service cards rendered here -->
+    </div>
+
+    <!-- 5A. Live Transaction Summary Bar (Selection Mode) -->
+    <div id="summaryBar" class="transaction-summary-bar">
+      <div class="summary-info">
+        <div class="summary-count">Items Selected: <span id="selectedCount">0</span></div>
+        <div class="summary-total" id="selectedTotal">₱0.00</div>
+      </div>
+      <div class="summary-actions">
+        <button class="btn-secondary" onclick="clearSelection()">Clear All</button>
+        <button class="btn-checkout" onclick="confirmOrder()">Confirm Selection</button>
+      </div>
+    </div>
+
+    <!-- 5B. Secondary Detailed Overlay (Display Mode) -->
+    <div id="detailOverlay" class="detail-overlay hidden">
+      <div class="detail-card">
+        <div class="detail-header">
+          <div class="detail-title-group">
+            <div id="detailCodeBadge" class="service-code-badge">HC</div>
+            <div>
+              <h3 id="detailTitle" style="font-size: 18px; color: var(--text-main);">Service Title</h3>
+              <span id="detailCategory" class="card-category">Category</span>
+            </div>
+          </div>
+          <button class="detail-close-btn" onclick="closeDetailOverlay()">&times;</button>
+        </div>
+        
+        <p id="detailDescription" class="detail-description">Full service detailed description goes here...</p>
+        
+        <div class="detail-meta-grid">
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Cluster</span>
+            <span id="detailCluster" class="detail-meta-val">Service</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Dynamic Price</span>
+            <span id="detailPrice" class="detail-meta-val" style="color: var(--accent-gold);">₱0.00</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Is Promo</span>
+            <span id="detailPromo" class="detail-meta-val">No</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Top Seller</span>
+            <span id="detailPopular" class="detail-meta-val">Yes</span>
+          </div>
+        </div>
+        
+        <button class="btn-checkout" style="width: 100%; margin-top: 8px;" onclick="closeDetailOverlay()">Close View</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================
+       6. MOCK DATASET & EXTERNAL PRICE MAP
+       ========================================== */
+    const mockServicesDB = [
+      {
+        service_code: "HC",
+        category: "Haircuts",
+        cluster: "Service",
+        service_name: "Signature Haircut",
+        service_description: "Precision haircut tailored to head shape including wash, blow-dry, and styling with premium pomade.",
+        is_promo: false,
+        is_popular: true
+      },
+      {
+        service_code: "BT",
+        category: "Beard",
+        cluster: "Service",
+        service_name: "Beard Trim & Sculpt",
+        service_description: "Detailed beard shaping, razor line edge-up, and hot towel treatment with beard oil application.",
+        is_promo: false,
+        is_popular: true
+      },
+      {
+        service_code: "HS",
+        category: "Grooming",
+        cluster: "Service",
+        service_name: "Hot Towel Shave",
+        service_description: "Traditional straight-razor shave with pre-shave essential oils, hot towels, and soothing post-shave balm.",
+        is_promo: false,
+        is_popular: false
+      },
+      {
+        service_code: "PM",
+        category: "Haircare",
+        cluster: "Retail",
+        service_name: "Matte Clay Pomade",
+        service_description: "High hold, low shine water-based styling clay for textured, natural everyday look (100g).",
+        is_promo: false,
+        is_popular: true
+      },
+      {
+        service_code: "BO",
+        category: "Beardcare",
+        cluster: "Retail",
+        service_name: "Cedarwood Beard Oil",
+        service_description: "Nourishing organic oil blend to hydrate skin, prevent itchiness, and soften coarse facial hair (50ml).",
+        is_promo: false,
+        is_popular: false
+      },
+      {
+        service_code: "EX",
+        category: "Facial",
+        cluster: "Consumables",
+        service_name: "Charcoal Face Mask",
+        service_description: "Single-use deep cleansing charcoal mask sheet for blackhead removal and pore tightening.",
+        is_promo: false,
+        is_popular: false
+      },
+      {
+        service_code: "COMBO1",
+        category: "Packages",
+        cluster: "Service-promo",
+        service_name: "Executive Cut + Beard",
+        service_description: "Full signature haircut paired with beard sculpt and hot towel treatment at a promotional bundle rate.",
+        is_promo: true,
+        is_popular: true
+      },
+      {
+        service_code: "PROMO2",
+        category: "Grooming",
+        cluster: "Service-promo",
+        service_name: "Father & Son Deal",
+        service_description: "Two adult signature haircuts package applicable during weekday off-peak hours.",
+        is_promo: true,
+        is_popular: false
+      },
+      {
+        service_code: "COLOR",
+        category: "Chemical",
+        cluster: "Service",
+        service_name: "Hair Color & Tone",
+        service_description: "Full gray coverage or fashion tinting with scalp-safe ammonia-free color formula.",
+        is_promo: false,
+        is_popular: false
+      },
+      {
+        service_code: "SHAMP",
+        category: "Haircare",
+        cluster: "Consumables",
+        service_name: "Menthol Rinse Sachet",
+        service_description: "Cooling menthol scalp conditioning shot used during shampoo treatment.",
+        is_promo: false,
+        is_popular: false
+      }
+    ];
+
+    // External Price Database Map (Key: service_code)
+    const externalPriceDB = {
+      "HC": 350.00,
+      "BT": 200.00,
+      "HS": 250.00,
+      "PM": 550.00,
+      "BO": 420.00,
+      "EX": 120.00,
+      "COMBO1": 480.00,
+      "PROMO2": 600.00,
+      "COLOR": 850.00,
+      "SHAMP": 50.00
+    };
+
+    /* ==========================================
+       APP STATE MANAGEMENT
+       ========================================== */
+    let currentCluster = "Popular";
+    let searchQuery = "";
+    let selectedServiceCodes = new Set();
+    let currentMode = "selection"; // "selection" | "display"
+
+    // Helper: Lookup Price dynamically
+    function getServicePrice(code) {
+      return externalPriceDB[code] || 0.00;
+    }
+
+    // Format currency
+    function formatCurrency(amount) {
+      return `₱${amount.toFixed(2)}`;
+    }
+
+    /* ==========================================
+       INITIALIZATION & RENDERING
+       ========================================== */
+    document.addEventListener("DOMContentLoaded", () => {
+      renderQuickTapBar();
+      renderGrid();
+    });
+
+    // Toggle Modal Mode (Selection vs Display)
+    function setTerminalMode(mode) {
+      currentMode = mode;
+      const modal = document.getElementById("servicesModal");
+      const badge = document.getElementById("modeBadge");
+      const summaryBar = document.getElementById("summaryBar");
+
+      modal.dataset.modalMode = mode;
+      
+      document.querySelectorAll(".mode-switch-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.textContent.toLowerCase().includes(mode));
+      });
+
+      if (mode === "selection") {
+        badge.textContent = "SELECTION MODE";
+        badge.style.background = "var(--accent-blue)";
+        summaryBar.classList.remove("hidden");
+      } else {
+        badge.textContent = "DISPLAY MODE";
+        badge.style.background = "#8b5cf6";
+        summaryBar.classList.add("hidden");
+      }
+
+      renderGrid();
+    }
+
+    // 1. Render Quick-Tap Bar
+    function renderQuickTapBar() {
+      const container = document.getElementById("quickTapRow");
+      const popularItems = mockServicesDB.filter(s => s.is_popular).slice(0, 5);
+
+      container.innerHTML = popularItems.map(item => `
+        <button class="quick-tap-btn" onclick="handleCardClick('${item.service_code}')">
+          <div class="quick-tap-badge">${item.service_code.slice(0,3)}</div>
+          <div class="quick-tap-info">
+            <span class="quick-tap-name">${item.service_name}</span>
+            <span class="quick-tap-price">${formatCurrency(getServicePrice(item.service_code))}</span>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    // 2. Filter Tabs Handler
+    function filterCluster(clusterName) {
+      currentCluster = clusterName;
+      document.querySelectorAll(".cluster-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.cluster === clusterName);
+      });
+      renderGrid();
+    }
+
+    // 3. Search Handler
+    function handleSearch() {
+      searchQuery = document.getElementById("searchInput").value.trim().toLowerCase();
+      renderGrid();
+    }
+
+    // 4. Render Main Grid
+    function renderGrid() {
+      const grid = document.getElementById("servicesGrid");
+      
+      const filtered = mockServicesDB.filter(item => {
+        // Filter by Cluster
+        let matchesCluster = false;
+        if (currentCluster === "Popular") matchesCluster = item.is_popular;
+        else if (currentCluster === "All") matchesCluster = true;
+        else matchesCluster = item.cluster === currentCluster;
+
+        // Filter by Search Query
+        const matchesSearch = item.service_name.toLowerCase().includes(searchQuery) || 
+                              item.service_code.toLowerCase().includes(searchQuery);
+
+        return matchesCluster && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-grid-msg">No services or products found matching criteria.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+        const isSelected = selectedServiceCodes.has(item.service_code);
+        const price = getServicePrice(item.service_code);
+
+        return `
+          <div class="service-card ${isSelected ? 'selected' : ''}" onclick="handleCardClick('${item.service_code}')">
+            <div class="selected-check">✓</div>
+            <div class="card-top">
+              <div class="service-code-badge">${item.service_code}</div>
+              <div class="card-meta">
+                <div class="card-title">${item.service_name}</div>
+                <div class="card-category">${item.category}</div>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">${formatCurrency(price)}</div>
+              ${item.is_promo ? `<span class="promo-badge">PROMO</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ==========================================
+       5. DUAL INTERACTIVE MODES LOGIC
+       ========================================== */
+    function handleCardClick(code) {
+      if (currentMode === "selection") {
+        // Mode A: Toggle Selection
+        if (selectedServiceCodes.has(code)) {
+          selectedServiceCodes.delete(code);
+        } else {
+          selectedServiceCodes.add(code);
+        }
+        updateSummary();
+        renderGrid();
+      } else {
+        // Mode B: Open Detailed View Overlay
+        openDetailOverlay(code);
+      }
+    }
+
+    // Update Transaction Summary Bar
+    function updateSummary() {
+      const countEl = document.getElementById("selectedCount");
+      const totalEl = document.getElementById("selectedTotal");
+
+      let total = 0;
+      selectedServiceCodes.forEach(code => {
+        total += getServicePrice(code);
+      });
+
+      countEl.textContent = selectedServiceCodes.size;
+      totalEl.textContent = formatCurrency(total);
+    }
+
+    function clearSelection() {
+      selectedServiceCodes.clear();
+      updateSummary();
+      renderGrid();
+    }
+
+    function confirmOrder() {
+      if (selectedServiceCodes.size === 0) {
+        alert("Please select at least one item first.");
+        return;
+      }
+      const selectedArr = Array.from(selectedServiceCodes);
+      alert(`Transaction Confirmed!\nItems: ${selectedArr.join(", ")}`);
+    }
+
+    // Detail Overlay Controls (Display Mode)
+    function openDetailOverlay(code) {
+      const item = mockServicesDB.find(s => s.service_code === code);
+      if (!item) return;
+
+      document.getElementById("detailCodeBadge").textContent = item.service_code;
+      document.getElementById("detailTitle").textContent = item.service_name;
+      document.getElementById("detailCategory").textContent = item.category;
+      document.getElementById("detailDescription").textContent = item.service_description;
+      document.getElementById("detailCluster").textContent = item.cluster;
+      document.getElementById("detailPrice").textContent = formatCurrency(getServicePrice(code));
+      document.getElementById("detailPromo").textContent = item.is_promo ? "Yes" : "No";
+      document.getElementById("detailPopular").textContent = item.is_popular ? "Yes" : "No";
+
+      document.getElementById("detailOverlay").classList.remove("hidden");
+    }
+
+    function closeDetailOverlay() {
+      document.getElementById("detailOverlay").classList.add("hidden");
+    }
+  </script>
+</body>
+</html>

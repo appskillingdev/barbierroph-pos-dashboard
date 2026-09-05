@@ -1,0 +1,592 @@
+/* ==================== GLOBAL STYLES & RESET ==================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f4f5f7;
+  color: #333;
+  height: 100vh; /* Changed from min-height: 100vh to lock viewport */
+  overflow: hidden; /* Prevents whole-page scrolling */
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ==================== TOP HEADER ==================== */
+.app-header {
+  background-color: #e8a228; /* Gold/Amber header background */
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.brand {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #121829;
+}
+
+.header-info {
+  text-align: center;
+  color: #121829;
+}
+
+.dashboard-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.meta-controls {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.divider {
+  margin: 0 8px;
+  color: #8f6213;
+}
+
+.branch-dropdown {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  color: #121829;
+}
+
+.btn-primary-dark {
+  background-color: #121829;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-primary-dark:hover {
+  background-color: #242f4c;
+}
+
+/* ==================== MAIN DASHBOARD LAYOUT ==================== */
+
+.pos-container {
+  display: grid;
+  grid-template-columns: 220px 1fr 240px;
+  gap: 16px;
+  padding: 16px;
+  height: calc(100vh - 65px); /* Constrains height below .app-header */
+  min-height: 0; /* Critical for grid item overflow */
+}
+
+/* Common Sidebar Header */
+.sidebar-header {
+  margin-bottom: 12px;
+}
+
+.sidebar-header h2 {
+  font-size: 13px;
+  font-weight: 800;
+  color: #613bb0;
+  letter-spacing: 0.5px;
+}
+
+/* ==================== LEFT SIDEBAR: BOOKNETIC QUEUE ==================== */
+.sidebar-left {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto; /* Enables vertical scrolling for Booknetic cards */
+  padding-right: 4px; /* Space for scrollbar */
+}
+
+/* Booknetic Card Styling */
+.queue-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fafafa;
+}
+
+.queue-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.tag-pay-shop {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tag-online-paid {
+  background-color: #d1fae5;
+  color: #065f46;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ==================== CENTER: SHOP FLOOR KANBAN ==================== */
+.shop-floor-board {
+  background-color: #1b2240;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  height: 100%;
+  min-height: 0;
+}
+
+.board-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0; /* Essential to let child columns constrain their height */
+}
+
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto; /* Enables vertical scrolling inside each column */
+  padding-right: 4px;
+}
+
+.board-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.board-header h2 {
+  color: #ffffff;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+}
+ 
+ 
+
+.kanban-column h3 {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+ 
+
+/* ==================== CUSTOMER & CHAIR CARDS ==================== */
+.pos-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: grab;
+  position: relative;
+}
+
+.pos-card:active {
+  cursor: grabbing;
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chair-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.customer-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.service-name {
+  font-size: 13px;
+  color: #475569;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Status Badges */
+.badge {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-walkin { background-color: #ffedd5; color: #c2410c; }
+.badge-appointment { background-color: #f3e8ff; color: #6b21a8; }
+.badge-in-progress { background-color: #fef3c7; color: #b45309; }
+.badge-paid { background-color: #d1fae5; color: #047857; }
+
+/* Card Buttons */
+.btn-card-action {
+  background-color: #e8a228;
+  color: #121829;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-card-action:hover {
+  background-color: #d6911e;
+}
+
+/* ==================== RIGHT SIDEBAR ==================== */
+.sidebar-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.quick-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-btn {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* ==================== MODALS & SEGMENTED CONTROLS ==================== */
+.hidden {
+  display: none !important;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-body label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.modal-body input, .modal-body select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.segmented-control {
+  display: flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.segment-btn {
+  flex: 1;
+  padding: 8px;
+  background: #f8fafc;
+  border: none;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.segment-btn.active {
+  background: #121829;
+  color: #ffffff;
+}
+
+.modal-footer {
+  margin-top: 20px;
+}
+
+.btn-primary {
+  width: 100%;
+  background-color: #e8a228;
+  color: #121829;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+/* ==================== CARD TRANSITIONS & ANIMATIONS ==================== */
+
+/* Smooth property transitions for drag & state updates */
+.pos-card {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), 
+              box-shadow 0.2s ease, 
+              opacity 0.2s ease;
+  will-change: transform, opacity;
+}
+
+/* Card hover lift effect */
+.pos-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* Active dragging state */
+.pos-card.is-dragging {
+  opacity: 0.4;
+  transform: scale(0.96);
+}
+
+/* Animation when a new card is dropped into a section */
+@keyframes cardDropIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardPick {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+}
+ 
+.pos-card:not(.in-progress-card) .show_on_in_progress,
+.pos-card:not(.paid-card) .show_on_checkout,
+.pos-card:not(.waiting-card) .show_on_waiting{
+  display: none;
+}
+
+
+ 
+
+.queue-card.animate-drop,
+.pos-card.animate-drop {
+  animation: cardDropIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.queue-card.animate-pick,
+.pos-card.animate-pick {
+  animation: cardPick 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Kanban column hover state during drag over */
+.kanban-column1 {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+}
+
+.kanban-column.drag-over {
+  background-color: rgba(232, 162, 40, 0.08) !important; /* Muted gold highlight */
+  border-color: #e8a228;
+}
+
+
+.modal-card{
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== INDEPENDENT COLUMN SCROLLING ==================== */
+
+/* 1. Prevent the overall main page body/board from expanding vertically */
+.pos-dashboard,
+.kanban-board-container {
+  height: calc(100vh - 80px); /* Adjust '80px' to match your main header navbar height */
+  overflow: hidden; /* Prevents the whole browser window from scrolling */
+  display: flex;
+  gap: 1rem;
+}
+ 
+
+/* 3. Keep Column Headers fixed at the top */
+.kanban-column-header,
+.column-title {
+  flex-shrink: 0; /* Prevents header from shrinking when cards accumulate */
+  padding: 12px 16px;
+  background: #0f172a;
+}
+
+/* 4. Make the inner Card Body container independently scrollable */
+.kanban-column-body,
+.cards-container,
+#waitingCards,
+#checkoutCards,
+#chairsGrid {
+  flex: 1; /* Fills remaining height in column */
+  min-height: 0; /* Important: Allows flex child to collapse below content height */
+  overflow-y: auto; /* Enables vertical scrolling inside this container only */
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 5. Booknetic List / Sidebar Scrollability */
+.booknetic-list-container,
+.booknetic-sidebar,
+#bookneticList {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ==================== CUSTOM SLIM SCROLLBARS ==================== */
+/* Custom scrollbar styling so columns look clean and modern */
+.kanban-column-body::-webkit-scrollbar,
+.cards-container::-webkit-scrollbar,
+.booknetic-list-container::-webkit-scrollbar,
+#chairsGrid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.kanban-column-body::-webkit-scrollbar-track,
+.cards-container::-webkit-scrollbar-track,
+.booknetic-list-container::-webkit-scrollbar-track,
+#chairsGrid::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 4px;
+}
+
+.kanban-column-body::-webkit-scrollbar-thumb,
+.cards-container::-webkit-scrollbar-thumb,
+.booknetic-list-container::-webkit-scrollbar-thumb,
+#chairsGrid::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+.kanban-column-body::-webkit-scrollbar-thumb:hover,
+.cards-container::-webkit-scrollbar-thumb:hover,
+.booknetic-list-container::-webkit-scrollbar-thumb:hover,
+#chairsGrid::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}

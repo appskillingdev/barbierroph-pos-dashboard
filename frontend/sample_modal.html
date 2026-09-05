@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS Service Selection Modal</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --primary-accent: #2563eb;
+      --bg-light: #f8fafc;
+      --border-color: #e2e8f0;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --promo-color: #dc2626;
+      --promo-bg: #fef2f2;
+      --selected-border: #2563eb;
+      --selected-bg: #eff6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Controls Bar Outside Modal (For Testing) */
+    .test-controls {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #ffffff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: var(--text-dark);
+    }
+
+    /* Modal Backdrop & Container */
+    .modal-overlay {
+      background: #ffffff;
+      width: 100%;
+      max-width: 850px;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-height: 90vh;
+    }
+
+    /* Header */
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-light);
+    }
+
+    .modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mode-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-selection { background: #dbeafe; color: #1e40af; }
+    .mode-display { background: #fef3c7; color: #92400e; }
+
+    /* Filters Section */
+    .filter-container {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--primary-accent); }
+
+    /* Quick Tap Bar */
+    .quick-tap-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quick-tap-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .quick-tap-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .quick-tap-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f1f5f9;
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .quick-tap-btn:hover { background: #e2e8f0; }
+
+    /* Cluster Tabs */
+    .cluster-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { background: var(--bg-light); color: var(--text-dark); }
+    .tab-btn.active { background: var(--primary); color: #ffffff; }
+
+    /* Service Grid */
+    .grid-container {
+      padding: 20px 24px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      min-height: 300px;
+    }
+
+    /* Cards */
+    .service-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      background: #ffffff;
+    }
+
+    .service-card:hover { border-color: var(--primary-accent); }
+    .service-card.selected {
+      border-color: var(--selected-border);
+      background: var(--selected-bg);
+    }
+
+    .service-card.is-promo {
+      border-color: #fca5a5;
+    }
+
+    .badge-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .service-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      line-height: 1.2;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .service-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .promo-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--promo-color);
+      background: var(--promo-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Footer */
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-light);
+    }
+
+    .summary-text { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+
+    .action-btns { display: flex; gap: 8px; }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary { background: #ffffff; color: var(--text-dark); }
+    .btn-primary { background: var(--primary-accent); color: #ffffff; border: none; }
+
+    /* Detail View Modal Overlay */
+    .detail-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .detail-card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      width: 400px;
+      max-width: 90%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="test-controls">
+    <label><strong>Modal Mode:</strong></label>
+    <select id="modeSelect" onchange="switchMode(this.value)">
+      <option value="selection">Selection Mode (Cashier POS Order)</option>
+      <option value="display">Display Mode (View Details / Options)</option>
+    </select>
+  </div>
+
+  <div class="modal-overlay">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <h3>Select Services & Items</h3>
+        <span id="modeBadge" class="mode-badge mode-selection">Selection Mode</span>
+      </div>
+    </div>
+
+    <div class="filter-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by name or service code..." oninput="renderGrid()">
+
+      <div class="quick-tap-section">
+        <span class="quick-tap-label">Quick Tap:</span>
+        <div class="quick-tap-list" id="quickTapContainer"></div>
+      </div>
+
+      <div class="cluster-tabs" id="clusterTabs">
+        <button class="tab-btn active" onclick="setCluster('Popular')">★ Popular</button>
+        <button class="tab-btn" onclick="setCluster('All')">All</button>
+        <button class="tab-btn" onclick="setCluster('Service')">Services</button>
+        <button class="tab-btn" onclick="setCluster('Retail')">Retail</button>
+        <button class="tab-btn" onclick="setCluster('Consumables')">Consumables</button>
+        <button class="tab-btn" onclick="setCluster('Service-promo')">Promos</button>
+      </div>
+    </div>
+
+    <div class="grid-container" id="gridContainer"></div>
+
+    <div class="modal-footer">
+      <div class="summary-text" id="summaryText">Selected: 0 items ($0.00)</div>
+      <div class="action-btns">
+        <button class="btn btn-secondary" onclick="clearSelection()">Clear</button>
+        <button class="btn btn-primary" onclick="confirmSelection()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-overlay" id="detailModal">
+    <div class="detail-card">
+      <h3 id="detailTitle" style="margin-bottom: 8px;"></h3>
+      <p id="detailCategory" style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;"></p>
+      <p id="detailDescription" style="font-size: 14px; margin-bottom: 16px;"></p>
+      <p id="detailPrice" style="font-size: 16px; font-weight: bold; margin-bottom: 20px;"></p>
+      <button class="btn btn-secondary" style="width: 100%;" onclick="closeDetailModal()">Close Detail</button>
+    </div>
+  </div>
+
+  <script>
+    // Mock Schema Services Data
+    const servicesData = [
+      { service_code: "HC", category: "Haircuts", cluster: "Service", service_name: "Gentleman Haircut", service_description: "Classic precision haircut including wash and neck shave.", is_promo: false, is_popular: true },
+      { service_code: "BT", category: "Beard", cluster: "Service", service_name: "Beard Trim & Sculpt", service_description: "Detailed beard shaping with hot towel finish.", is_promo: false, is_popular: true },
+      { service_code: "HS", category: "Combos", cluster: "Service-promo", service_name: "Haircut & Beard Combo", service_description: "Full service haircut combined with complete beard grooming.", is_promo: true, is_popular: true },
+      { service_code: "FC", category: "Facial", cluster: "Service", service_name: "Express Facial", service_description: "Deep cleansing facial treatment with essential oils.", is_promo: false, is_popular: false },
+      { service_code: "PM", category: "Styling", cluster: "Retail", service_name: "Matte Clay Pomade", service_description: "Strong hold, low shine styling clay (4oz).", is_promo: false, is_popular: true },
+      { service_code: "BO", category: "Grooming", cluster: "Retail", service_name: "Organic Beard Oil", service_description: "Nourishing oil for beard softeness and skin moisture.", is_promo: false, is_popular: false },
+      { service_code: "CS", category: "Shaving", cluster: "Consumables", service_name: "Single-Use Razor Pack", service_description: "Sanitized replacement cartridge blades.", is_promo: false, is_popular: false },
+      { service_code: "HC-P", category: "Haircuts", cluster: "Service-promo", service_name: "Student Haircut Promo", service_description: "Discounted haircut rate with valid student ID.", is_promo: true, is_popular: false },
+      { service_code: "HC-S", category: "Haircuts", cluster: "Service", service_name: "Senior Haircut", service_description: "Specialized gentle haircut service for seniors.", is_promo: false, is_popular: false },
+      { service_code: "SH", category: "Haircare", cluster: "Retail", service_name: "Tea Tree Shampoo", service_description: "Refreshing daily scalp cleansing shampoo.", is_promo: false, is_popular: false }
+    ];
+
+    // Mock External Price DB (Resolved at runtime)
+    const priceDatabase = {
+      "HC": 25.00, "BT": 15.00, "HS": 32.00, "FC": 20.00,
+      "PM": 18.00, "BO": 14.00, "CS": 2.50, "HC-P": 18.00,
+      "HC-S": 15.00, "SH": 16.00
+    };
+
+    // Application State
+    let currentMode = 'selection';
+    let activeCluster = 'Popular';
+    let selectedCodes = new Set();
+
+    function init() {
+      renderQuickTapBar();
+      renderGrid();
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      const badge = document.getElementById('modeBadge');
+      badge.textContent = mode === 'selection' ? 'Selection Mode' : 'Display Mode';
+      badge.className = `mode-badge mode-${mode}`;
+    }
+
+    function setCluster(cluster) {
+      activeCluster = cluster;
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.textContent.includes(cluster) || (cluster === 'Popular' && tab.textContent.includes('Popular')));
+      });
+      renderGrid();
+    }
+
+    function renderQuickTapBar() {
+      const container = document.getElementById('quickTapContainer');
+      const popularItems = servicesData.filter(s => s.is_popular);
+      container.innerHTML = popularItems.map(item => `
+        <button class="quick-tap-btn" onclick="handleItemClick('${item.service_code}')">
+          <span>${item.service_code}</span> | <span>$${priceDatabase[item.service_code].toFixed(2)}</span>
+        </button>
+      `).join('');
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('gridContainer');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+      const filtered = servicesData.filter(item => {
+        const matchesCluster = 
+          activeCluster === 'All' ? true :
+          activeCluster === 'Popular' ? item.is_popular :
+          item.cluster === activeCluster;
+
+        const matchesSearch = 
+          item.service_name.toLowerCase().includes(searchQuery) ||
+          item.service_code.toLowerCase().includes(searchQuery);
+
+        return matchesCluster && matchesSearch;
+      });
+
+      grid.innerHTML = filtered.map(item => {
+        const isSelected = selectedCodes.has(item.service_code);
+        const price = priceDatabase[item.service_code].toFixed(2);
+        
+        return `
+          <div class="service-card ${isSelected ? 'selected' : ''} ${item.is_promo ? 'is-promo' : ''}" 
+               onclick="handleItemClick('${item.service_code}')">
+            <div class="badge-icon">${item.service_code}</div>
+            <div class="card-content">
+              <div class="service-name">${item.service_name}</div>
+              <div class="card-footer">
+                <span class="service-price">$${price}</span>
+                ${item.is_promo ? '<span class="promo-tag">Promo</span>' : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleItemClick(code) {
+      if (currentMode === 'selection') {
+        if (selectedCodes.has(code)) {
+          selectedCodes.delete(code);
+        } else {
+          selectedCodes.add(code);
+        }
+        renderGrid();
+        updateSummary();
+      } else if (currentMode === 'display') {
+        openDetailModal(code);
+      }
+    }
+
+    function updateSummary() {
+      let total = 0;
+      selectedCodes.forEach(code => {
+        total += priceDatabase[code];
+      });
+      document.getElementById('summaryText').textContent = 
+        `Selected: ${selectedCodes.size} items ($${total.toFixed(2)})`;
+    }
+
+    function clearSelection() {
+      selectedCodes.clear();
+      renderGrid();
+      updateSummary();
+    }
+
+    function confirmSelection() {
+      alert(`Transaction confirmed with items: ${Array.from(selectedCodes).join(', ')}`);
+    }
+
+    function openDetailModal(code) {
+      const item = servicesData.find(s => s.service_code === code);
+      document.getElementById('detailTitle').textContent = `${item.service_name} (${item.service_code})`;
+      document.getElementById('detailCategory').textContent = `Cluster: ${item.cluster} | Category: ${item.category}`;
+      document.getElementById('detailDescription').textContent = item.service_description;
+      document.getElementById('detailPrice').textContent = `Price: $${priceDatabase[code].toFixed(2)}`;
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+
+    init();
+  </script>
+</body>
+</html>

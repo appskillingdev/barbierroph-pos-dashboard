@@ -1,0 +1,163 @@
+/* ==================== VACANT CHAIR SLOT STYLING ==================== */
+.pos-card.vacant-slot {
+  background-color: rgba(255, 255, 255, 0.03); /* Almost invisible/transparent */
+  border: 2px dashed rgba(255, 255, 255, 0.3); /* Muted dashed border */
+  box-shadow: none;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+/* Hover & Drag Over effect for Vacant Slots */
+.pos-card.vacant-slot:hover,
+.pos-card.vacant-slot.drag-over-slot {
+  border-color: #e8a228; /* Gold border glow when hovered or dragged over */
+  background-color: rgba(232, 162, 40, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.vacant-text {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  color: #cbd5e1;
+  margin: 6px 0;
+}
+
+/* Chair Slot Outer Shell */
+.chair-slot {
+  background: #0f172a;
+  border: 2px dashed #334155;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  /* min-height: 180px; */
+  transition: all 0.2s ease;
+}
+
+/* Header inside every chair slot */
+.chair-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.chair-title {
+  font-weight: 700;
+  color: #f8fafc;
+  font-size: 13px;
+}
+
+.chair-barber {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Inner area where card or vacant drop prompt sits */
+.chair-slot-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Vacant Slot Prompt */
+.chair-vacant .vacant-drop-zone {
+  border: 1px dashed #475569;
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s;
+}
+
+.chair-vacant .vacant-drop-zone:hover,
+.chair-vacant.drag-hover {
+  background: #1e293b;
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+/* Occupied Slot Styling */
+.chair-occupied {
+  border: 2px solid #0284c7; /* Solid border when occupied */
+  background: #0f172a;
+}
+
+.chair-occupied .pos-card {
+  margin: 0; /* Remove extra outer margins when sitting inside a slot */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.custom-modal-content {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 420px;
+  width: 90%;
+  color: #f8fafc;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  background: #334155;
+  color: #f8fafc;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-confirm-parallel {
+  background: #eab308; /* Attention-getting yellow/amber */
+  color: #0f172a;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-confirm-parallel:hover {
+  background: #facc15;
+}
