@@ -1,0 +1,41 @@
+### Get all users
+GET http://localhost:3000/users HTTP/1.1
+
+### Get user by ID
+GET http://localhost:3000/users/owner001 HTTP/1.1
+
+### Get users by role
+GET http://localhost:3000/users/role/owner HTTP/1.1
+
+### Create new user
+POST http://localhost:3000/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "ID": "TEST-USER",
+  "firstName": "Test",
+  "lastName": "User",
+  "role": "staff",
+  "gender": "M",
+  "email": "testuser@barbierro.com",
+  "contactNumber": "09123456789",
+  "password": "password123",
+  "address": "123 Test St",
+  "city": "Manila",
+  "province": "NCR",
+  "region": "NCR",
+  "birthdate": "1990-01-01",
+  "status": "ACTIVE"
+}
+
+### Update user
+PUT http://localhost:3000/users/TEST-USER HTTP/1.1
+Content-Type: application/json
+
+{
+  "contactNumber": "09987654321",
+  "email": "updated@barbierro.com"
+}
+
+### Delete user
+DELETE http://localhost:3000/users/TEST-USER HTTP/1.1

@@ -1,0 +1,39 @@
+### Get all services
+GET http://localhost:3000/services HTTP/1.1
+
+### Get service by code
+GET http://localhost:3000/services/REG-CUT HTTP/1.1
+
+### Get services by category
+GET http://localhost:3000/services/category/haircut HTTP/1.1
+
+### Get promo services
+GET http://localhost:3000/services/promos HTTP/1.1
+
+### Create new service
+POST http://localhost:3000/services HTTP/1.1
+Content-Type: application/json
+
+{
+  "serviceCode": "TEST-CUT",
+  "serviceName": "Test Haircut",
+  "serviceCategory": "haircut",
+  "serviceDescription": "Test haircut service",
+  "servicePrice": 200.00,
+  "servicePromo": 0,
+  "servicePromoPrice": 0,
+  "serviceValidity": "ACTIVE"
+}
+
+### Update service
+PUT http://localhost:3000/services/TEST-CUT HTTP/1.1
+Content-Type: application/json
+
+{
+  "servicePrice": 250.00,
+  "servicePromo": 1,
+  "servicePromoPrice": 200.00
+}
+
+### Delete service
+DELETE http://localhost:3000/services/TEST-CUT HTTP/1.1

@@ -1,0 +1,40 @@
+### Get all customers
+GET http://localhost:3000/customers HTTP/1.1
+
+### Get customer by ID
+GET http://localhost:3000/customers/cust001 HTTP/1.1
+
+### Get top customers
+GET http://localhost:3000/customers/top?limit=10 HTTP/1.1
+
+### Create new customer
+POST http://localhost:3000/customers HTTP/1.1
+Content-Type: application/json
+
+{
+  "customerId": "TEST-CUST",
+  "customerFirstName": "Test",
+  "customerLastName": "Customer",
+  "customerGender": "M",
+  "customerContactNumber": "09123456789",
+  "customerEmail": "testcustomer@email.com",
+  "customerAddress": "123 Test St",
+  "customerVisitCount": 0,
+  "customerLoyaltyPoints": 0,
+  "customerStatus": "ACTIVE"
+}
+
+### Update customer
+PUT http://localhost:3000/customers/TEST-CUST HTTP/1.1
+Content-Type: application/json
+
+{
+  "customerContactNumber": "09987654321",
+  "customerLoyaltyPoints": 100
+}
+
+### Increment customer visit count
+PUT http://localhost:3000/customers/TEST-CUST/visit HTTP/1.1
+
+### Delete customer
+DELETE http://localhost:3000/customers/TEST-CUST HTTP/1.1

@@ -11,9 +11,9 @@
   "camelCaseColumnNames": false,
   "dbUrl": "",
   "db": {
-    "host": "db",
-    "user": "test",
-    "dbName": "test",
-    "password": "example"
+    "host": "localhost",
+    "user": "admin",
+    "dbName": "mydb",
+    "password": "admin"
   }
 }

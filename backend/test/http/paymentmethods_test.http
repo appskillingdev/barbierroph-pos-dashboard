@@ -1,0 +1,30 @@
+### Get all payment methods
+GET http://localhost:3000/payment-methods HTTP/1.1
+
+### Get payment method by name
+GET http://localhost:3000/payment-methods/cash HTTP/1.1
+
+### Get active payment methods
+GET http://localhost:3000/payment-methods/active HTTP/1.1
+
+### Create new payment method
+POST http://localhost:3000/payment-methods HTTP/1.1
+Content-Type: application/json
+
+{
+  "paymentMethodName": "test-payment",
+  "paymentMethodDescription": "Test Payment Method",
+  "paymentMethodValidity": "ACTIVE"
+}
+
+### Update payment method
+PUT http://localhost:3000/payment-methods/test-payment HTTP/1.1
+Content-Type: application/json
+
+{
+  "paymentMethodDescription": "Updated Test Payment Method",
+  "paymentMethodValidity": "INACTIVE"
+}
+
+### Delete payment method
+DELETE http://localhost:3000/payment-methods/test-payment HTTP/1.1
