@@ -44,6 +44,13 @@ export type PermissionKey = keyof typeof permissions;
  */
 export const requirePermission = (permission: PermissionKey) => {
   return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.session?.user) {
+      res.status(401).json({ error: "Unauthorized: Not authenticated" });
+      return;
+    }
+
+    // Ensure req.user is populated regardless of middleware order
+    req.user = req.session.user;
     const userType = req.user?.userType;
 
     if (!userType) {
@@ -71,6 +78,13 @@ export const requirePermission = (permission: PermissionKey) => {
  */
 export const requireUserType = (...allowedTypes: UserType[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.session?.user) {
+      res.status(401).json({ error: "Unauthorized: Not authenticated" });
+      return;
+    }
+
+    // Ensure req.user is populated regardless of middleware order
+    req.user = req.session.user;
     const userType = req.user?.userType;
 
     if (!userType) {

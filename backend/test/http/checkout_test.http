@@ -1,20 +1,25 @@
+@baseUrl = http://localhost:3000/api
+
 ### Get all checkouts
-GET http://localhost:3000/checkout HTTP/1.1
+GET {{baseUrl}}/checkout HTTP/1.1
+
+### Filter and sort checkouts
+GET {{baseUrl}}/checkout?assigned_branch=branch001&sortBy=purchased_at&sortOrder=desc&limit=10 HTTP/1.1
 
 ### Get checkout by ID
-GET http://localhost:3000/checkout/1 HTTP/1.1
+GET {{baseUrl}}/checkout/1 HTTP/1.1
 
 ### Get checkouts by branch
-GET http://localhost:3000/checkout/branch/branch001 HTTP/1.1
+GET {{baseUrl}}/checkout/branch/branch001 HTTP/1.1
 
 ### Get checkouts by date range
-GET http://localhost:3000/checkout/date-range?startDate=2024-01-01&endDate=2024-12-31 HTTP/1.1
+GET {{baseUrl}}/checkout/date-range?startDate=2024-01-01&endDate=2024-12-31 HTTP/1.1
 
 ### Get checkouts by customer name
-GET http://localhost:3000/checkout/customer?name=Juan HTTP/1.1
+GET {{baseUrl}}/checkout/customer?name=Juan HTTP/1.1
 
 ### Create new checkout
-POST http://localhost:3000/checkout HTTP/1.1
+POST {{baseUrl}}/checkout HTTP/1.1
 Content-Type: application/json
 
 {
@@ -29,7 +34,7 @@ Content-Type: application/json
 }
 
 ### Update checkout
-PUT http://localhost:3000/checkout/1 HTTP/1.1
+PUT {{baseUrl}}/checkout/1 HTTP/1.1
 Content-Type: application/json
 
 {
@@ -38,4 +43,4 @@ Content-Type: application/json
 }
 
 ### Delete checkout
-DELETE http://localhost:3000/checkout/1 HTTP/1.1
+DELETE {{baseUrl}}/checkout/1 HTTP/1.1

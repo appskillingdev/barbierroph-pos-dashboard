@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createSale,
   getLatestSales,
@@ -19,6 +21,10 @@ export default class SalesController {
     try {
       const result = await createSale.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -30,8 +36,16 @@ export default class SalesController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const salesData = await getLatestSales.run(undefined, client);
+      const salesData = await runListQuery(
+        client,
+        listQueries.sales,
+        req.query,
+      );
       res.json(salesData);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -44,11 +58,17 @@ export default class SalesController {
     const client = await pool.connect();
     try {
       const { transactionId } = req.params;
-      const salesData = await getSalesByTransactionId.run(
-        { transaction_id: transactionId as string },
+      const salesData = await runListQuery(
         client,
+        listQueries.sales,
+        req.query,
+        [{ column: "transaction_id", value: transactionId as string }],
       );
       res.json(salesData);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -61,11 +81,28 @@ export default class SalesController {
     const client = await pool.connect();
     try {
       const { startDate, endDate } = req.query;
-      const salesData = await getSalesByDateRange.run(
-        { start_date: startDate as string, end_date: endDate as string },
+      const salesData = await runListQuery(
         client,
+        listQueries.sales,
+        req.query,
+        [
+          {
+            column: "transaction_date",
+            value: startDate as string,
+            operator: "gte",
+          },
+          {
+            column: "transaction_date",
+            value: endDate as string,
+            operator: "lte",
+          },
+        ],
       );
       res.json(salesData);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -78,11 +115,17 @@ export default class SalesController {
     const client = await pool.connect();
     try {
       const { customerId } = req.params;
-      const salesData = await getSalesByCustomer.run(
-        { customer_id: customerId as string },
+      const salesData = await runListQuery(
         client,
+        listQueries.sales,
+        req.query,
+        [{ column: "customer_id", value: customerId as string }],
       );
       res.json(salesData);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -95,11 +138,17 @@ export default class SalesController {
     const client = await pool.connect();
     try {
       const { branchId } = req.params;
-      const salesData = await getSalesByBranch.run(
-        { branch_id: branchId as string },
+      const salesData = await runListQuery(
         client,
+        listQueries.sales,
+        req.query,
+        [{ column: "branch_id", value: branchId as string }],
       );
       res.json(salesData);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -112,11 +161,17 @@ export default class SalesController {
     const client = await pool.connect();
     try {
       const { barberId } = req.params;
-      const salesData = await getSalesByBarber.run(
-        { barber_id: barberId as string },
+      const salesData = await runListQuery(
         client,
+        listQueries.sales,
+        req.query,
+        [{ column: "barber_id", value: barberId as string }],
       );
       res.json(salesData);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -129,11 +184,17 @@ export default class SalesController {
     const client = await pool.connect();
     try {
       const { paymentMethod } = req.params;
-      const salesData = await getSalesByPaymentMethod.run(
-        { payment_method: paymentMethod as string },
+      const salesData = await runListQuery(
         client,
+        listQueries.sales,
+        req.query,
+        [{ column: "payment_method", value: paymentMethod as string }],
       );
       res.json(salesData);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -144,6 +205,10 @@ export default class SalesController {
     try {
       const result = await updateSale.run(req.body, client);
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -154,6 +219,10 @@ export default class SalesController {
     try {
       const result = await deleteSale.run(req.body, client);
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

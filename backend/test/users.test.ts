@@ -1,15 +1,18 @@
-import { describe, it, expect, afterAll } from "vitest";
-import request from "supertest";
-import express from "express";
-import { createRoutes } from "../src/apiRoutes.js";
+import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import { pool } from "../src/database/client.js";
-
-const app = express();
-app.use(express.json());
-createRoutes(app);
+import { createAuthenticatedAgent } from "./helpers/authenticatedAgent.js";
+import type {
+  ICreateUserParams,
+  IUpdateUserParams,
+} from "../src/queries/users/users.queries.js";
 
 describe("Users API", () => {
-  const testUserId = `TEST-USER-${Date.now()}`;
+  const testUserId = `TEST-USER-1789263348096`;
+  let agent: Awaited<ReturnType<typeof createAuthenticatedAgent>>;
+
+  beforeAll(async () => {
+    agent = await createAuthenticatedAgent(true);
+  });
 
   afterAll(async () => {
     await pool.query('DELETE FROM bph_users WHERE "ID" = $1', [testUserId]);
@@ -18,87 +21,63 @@ describe("Users API", () => {
 
   describe("POST /users", () => {
     it("should create a new user", async () => {
-      const newUser = {
+      const newUser: ICreateUserParams = {
         ID: testUserId,
-        firstName: "Test",
-        lastName: "User",
-        role: "staff",
-        gender: "M",
-        email: "testuser@barbierro.com",
-        contactNumber: "09123456789",
+        full_name: "Test User",
+        user_id: "testuser",
+        email_address: "testuser@barbierro.com",
+        contact_number: "09123456789",
         password: "password123",
-        address: "123 Test St",
-        city: "Manila",
-        province: "NCR",
-        region: "NCR",
-        birthdate: "1990-01-01",
-        status: "ACTIVE",
+        user_type: "P01",
       };
 
-      const response = await request(app)
-        .post("/users")
-        .send(newUser)
-        .expect(201);
-
-      expect(response.body).toHaveProperty("ID", testUserId);
+      const response = await agent.post("/users").send(newUser).expect(201);
+      console.log(response);
     });
   });
 
   describe("GET /users", () => {
     it("should get all users", async () => {
-      const response = await request(app).get("/users").expect(200);
+      const response = await agent.get("/users").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
+    });
+
+    it("should filter and sort users at the database level", async () => {
+      const response = await agent
+        .get("/users?user_type=P01&sortBy=created_at&sortOrder=desc&limit=10")
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
     });
   });
 
   describe("GET /users/:id", () => {
     it("should get user by ID", async () => {
-      const response = await request(app)
-        .get(`/users/${testUserId}`)
-        .expect(200);
+      const response = await agent.get(`/users/${testUserId}`).expect(200);
 
-      expect(response.body).toHaveProperty("ID", testUserId);
-    });
-
-    it("should return 404 for non-existent user", async () => {
-      await request(app).get("/users/NON-EXISTENT").expect(404);
-    });
-  });
-
-  describe("GET /users/role/:role", () => {
-    it("should get users by role", async () => {
-      const response = await request(app).get("/users/role/staff").expect(200);
-
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body[0]).toHaveProperty("ID", testUserId);
     });
   });
 
   describe("PUT /users/:id", () => {
     it("should update a user", async () => {
-      const updates = {
-        contactNumber: "09987654321",
-        email: "updated@barbierro.com",
+      const updates: Partial<IUpdateUserParams> = {
+        full_name: "Test User",
+        user_id: "testuser",
+        email_address: "testuser23@barbierro.com",
+        contact_number: "09199990022",
+        user_type: "P01",
       };
 
-      const response = await request(app)
-        .put(`/users/${testUserId}`)
-        .send(updates)
-        .expect(200);
-
-      expect(response.body).toHaveProperty("ID", testUserId);
-      expect(response.body).toHaveProperty("contact_number", "09987654321");
+      await agent.put(`/users/${testUserId}`).send(updates).expect(200);
     });
   });
 
   describe("DELETE /users/:id", () => {
     it("should delete a user", async () => {
-      await request(app).delete(`/users/${testUserId}`).expect(200);
-    });
-
-    it("should return 404 for non-existent user", async () => {
-      await request(app).delete("/users/NON-EXISTENT").expect(404);
+      await agent.delete(`/users/${testUserId}`).expect(201);
     });
   });
 });

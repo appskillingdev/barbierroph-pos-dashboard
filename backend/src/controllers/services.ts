@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createService,
   getAllServices,
@@ -16,6 +18,10 @@ export default class ServicesController {
     try {
       const result = await createService.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -27,8 +33,16 @@ export default class ServicesController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const services = await getAllServices.run(undefined, client);
+      const services = await runListQuery(
+        client,
+        listQueries.services,
+        req.query,
+      );
       res.json(services);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -46,6 +60,10 @@ export default class ServicesController {
         client,
       );
       res.json(service);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -58,11 +76,17 @@ export default class ServicesController {
     const client = await pool.connect();
     try {
       const { category } = req.params;
-      const services = await getServicesByCategory.run(
-        { category: category as string },
+      const services = await runListQuery(
         client,
+        listQueries.services,
+        req.query,
+        [{ column: "category", value: category as string }],
       );
       res.json(services);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -74,8 +98,17 @@ export default class ServicesController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const services = await getPromoServices.run(undefined, client);
+      const services = await runListQuery(
+        client,
+        listQueries.services,
+        req.query,
+        [{ column: "is_promo", value: true as unknown as string }],
+      );
       res.json(services);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -90,6 +123,10 @@ export default class ServicesController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -101,6 +138,10 @@ export default class ServicesController {
       const { serviceCode } = req.params;
       await deleteService.run({ service_code: serviceCode as string }, client);
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

@@ -1,23 +1,27 @@
+@baseUrl = http://localhost:3000/api
 ### Get all slots
-GET http://localhost:3000/slots HTTP/1.1
+GET {{baseUrl}}/slots HTTP/1.1
+
+### Filter and sort slots
+GET {{baseUrl}}/slots?status=available&sortBy=slot_id&sortOrder=asc&limit=10 HTTP/1.1
 
 ### Get slot by ID
-GET http://localhost:3000/slots/1 HTTP/1.1
+GET {{baseUrl}}/slots/1 HTTP/1.1
 
 ### Get slots by branch
-GET http://localhost:3000/slots/branch/branch001 HTTP/1.1
+GET {{baseUrl}}/slots/branch/branch001 HTTP/1.1
 
 ### Get slots by barber
-GET http://localhost:3000/slots/barber/barber001 HTTP/1.1
+GET {{baseUrl}}/slots/barber/barber001 HTTP/1.1
 
 ### Get available slots by branch
-GET http://localhost:3000/slots/available/branch001 HTTP/1.1
+GET {{baseUrl}}/slots/available/branch001 HTTP/1.1
 
 ### Get slots by date range
-GET http://localhost:3000/slots/date-range?startDate=2024-01-01&endDate=2024-01-31 HTTP/1.1
+GET {{baseUrl}}/slots/date-range?startDate=2024-01-01&endDate=2024-01-31 HTTP/1.1
 
 ### Create new slot
-POST http://localhost:3000/slots HTTP/1.1
+POST {{baseUrl}}/slots HTTP/1.1
 Content-Type: application/json
 
 {
@@ -32,7 +36,7 @@ Content-Type: application/json
 }
 
 ### Update slot
-PUT http://localhost:3000/slots/1 HTTP/1.1
+PUT {{baseUrl}}/slots/1 HTTP/1.1
 Content-Type: application/json
 
 {
@@ -41,4 +45,4 @@ Content-Type: application/json
 }
 
 ### Delete slot
-DELETE http://localhost:3000/slots/1 HTTP/1.1
+DELETE {{baseUrl}}/slots/1 HTTP/1.1

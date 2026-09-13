@@ -75,10 +75,8 @@ export default class AuthController {
         // redirectUrl: process.env.BB_SUITE_URL || process.env.BB_POS_URL
       });
     } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({
-        error: "Internal server error",
-        message: "An error occurred during login",
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
       });
     } finally {
       client.release();
@@ -95,11 +93,7 @@ export default class AuthController {
         // Destroy session
         req.session.destroy((err: Error) => {
           if (err) {
-            console.error("Logout error:", err);
-            res.status(500).json({
-              error: "Logout failed",
-              message: "Could not destroy session",
-            });
+            res.status(404).json({ error: err.message });
             return;
           }
 
@@ -121,10 +115,8 @@ export default class AuthController {
         });
       }
     } catch (error) {
-      console.error("Logout error:", error);
-      res.status(500).json({
-        error: "Internal server error",
-        message: "An error occurred during logout",
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   };
@@ -147,10 +139,8 @@ export default class AuthController {
         });
       }
     } catch (error) {
-      console.error("Session check error:", error);
-      res.status(500).json({
-        error: "Internal server error",
-        message: "Could not check session",
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   };

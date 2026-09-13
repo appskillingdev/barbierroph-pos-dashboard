@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createInventoryItem,
   getAllInventoryItems,
@@ -20,6 +22,10 @@ export default class InventoryController {
     try {
       const result = await createInventoryItem.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -31,8 +37,16 @@ export default class InventoryController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const items = await getAllInventoryItems.run(undefined, client);
+      const items = await runListQuery(
+        client,
+        listQueries.inventory,
+        req.query,
+      );
       res.json(items);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -50,6 +64,10 @@ export default class InventoryController {
         client,
       );
       res.json(item);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -62,11 +80,17 @@ export default class InventoryController {
     const client = await pool.connect();
     try {
       const { category } = req.params;
-      const items = await getInventoryItemsByCategory.run(
-        { category: category as string },
+      const items = await runListQuery(
         client,
+        listQueries.inventory,
+        req.query,
+        [{ column: "category", value: category as string }],
       );
       res.json(items);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -78,8 +102,17 @@ export default class InventoryController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const items = await getLowStockItems.run(undefined, client);
+      const items = await runListQuery(
+        client,
+        listQueries.inventory,
+        req.query,
+        [{ raw: "initial_stock <= miniumum_stock" }],
+      );
       res.json(items);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -97,6 +130,10 @@ export default class InventoryController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -117,6 +154,10 @@ export default class InventoryController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -134,6 +175,10 @@ export default class InventoryController {
         client,
       );
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

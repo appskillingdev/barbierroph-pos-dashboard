@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createQueue,
   getAllQueues,
@@ -19,6 +21,10 @@ export default class QueueController {
     try {
       const result = await createQueue.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -27,8 +33,12 @@ export default class QueueController {
   public getAllQueues = async (req: Request, res: Response): Promise<void> => {
     const client = await pool.connect();
     try {
-      const queues = await getAllQueues.run(undefined, client);
+      const queues = await runListQuery(client, listQueries.queue, req.query);
       res.json(queues);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -40,6 +50,10 @@ export default class QueueController {
       const { id } = req.params;
       const queue = await getQueueById.run({ id: id as string }, client);
       res.json(queue);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -52,11 +66,14 @@ export default class QueueController {
     const client = await pool.connect();
     try {
       const { branchId } = req.params;
-      const queues = await getQueuesByBranch.run(
-        { assigned_branch: branchId as string },
-        client,
-      );
+      const queues = await runListQuery(client, listQueries.queue, req.query, [
+        { column: "assigned_branch", value: branchId as string },
+      ]);
       res.json(queues);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -69,11 +86,14 @@ export default class QueueController {
     const client = await pool.connect();
     try {
       const { barberId } = req.params;
-      const queues = await getQueuesByBarber.run(
-        { assigned_barber: barberId as string },
-        client,
-      );
+      const queues = await runListQuery(client, listQueries.queue, req.query, [
+        { column: "assigned_barber", value: barberId as string },
+      ]);
       res.json(queues);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -86,11 +106,14 @@ export default class QueueController {
     const client = await pool.connect();
     try {
       const { status } = req.params;
-      const queues = await getQueuesByStatus.run(
-        { status: status as string },
-        client,
-      );
+      const queues = await runListQuery(client, listQueries.queue, req.query, [
+        { column: "status", value: status as string },
+      ]);
       res.json(queues);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -103,11 +126,18 @@ export default class QueueController {
     const client = await pool.connect();
     try {
       const { name } = req.params;
-      const queues = await getQueuesByCustomerName.run(
-        { customer_name: `%${name as string}%` },
-        client,
-      );
+      const queues = await runListQuery(client, listQueries.queue, req.query, [
+        {
+          column: "customer_name",
+          value: name as string,
+          operator: "contains",
+        },
+      ]);
       res.json(queues);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -122,6 +152,10 @@ export default class QueueController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -139,6 +173,10 @@ export default class QueueController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -150,6 +188,10 @@ export default class QueueController {
       const { id } = req.params;
       await deleteQueue.run({ id: id as string }, client);
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

@@ -1,15 +1,18 @@
-import { describe, it, expect, afterAll } from "vitest";
-import request from "supertest";
-import express from "express";
-import { createRoutes } from "../src/apiRoutes.js";
+import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import { pool } from "../src/database/client.js";
-
-const app = express();
-app.use(express.json());
-createRoutes(app);
+import { createAuthenticatedAgent } from "./helpers/authenticatedAgent.js";
+import type {
+  ICreateBranchParams,
+  IUpdateBranchParams,
+} from "../src/queries/branches/branches.queries.js";
 
 describe("Branches API", () => {
   const testBranchId = `TEST-BRANCH-${Date.now()}`;
+  let agent: Awaited<ReturnType<typeof createAuthenticatedAgent>>;
+
+  beforeAll(async () => {
+    agent = await createAuthenticatedAgent(true);
+  });
 
   afterAll(async () => {
     await pool.query("DELETE FROM bph_branches WHERE branch_id = $1", [
@@ -20,21 +23,15 @@ describe("Branches API", () => {
 
   describe("POST /branches", () => {
     it("should create a new branch", async () => {
-      const newBranch = {
-        branchId: testBranchId,
-        branchName: "Test Branch",
-        branchAddress: "123 Test St",
-        branchCity: "Manila",
-        branchProvince: "NCR",
-        branchRegion: "NCR",
-        branchContactNumber: "09123456789",
-        branchEmail: "testbranch@barbierro.com",
-        branchOwner: "owner001",
-        branchDescription: "Test branch",
-        branchValidity: "ACTIVE",
+      const newBranch: ICreateBranchParams = {
+        branch_id: testBranchId,
+        branch_owner: "owner001",
+        established_at: "2024-01-01",
+        branch_location: "Manila",
+        branch_address: "123 Test St",
       };
 
-      const response = await request(app)
+      const response = await agent
         .post("/branches")
         .send(newBranch)
         .expect(201);
@@ -45,32 +42,38 @@ describe("Branches API", () => {
 
   describe("GET /branches", () => {
     it("should get all branches", async () => {
-      const response = await request(app).get("/branches").expect(200);
+      const response = await agent.get("/branches").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
+    });
+
+    it("should filter and sort branches at the database level", async () => {
+      const response = await agent
+        .get(
+          "/branches?branch_location=Manila&sortBy=branch_address&sortOrder=asc&limit=10",
+        )
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
     });
   });
 
   describe("GET /branches/:branchId", () => {
     it("should get branch by ID", async () => {
-      const response = await request(app)
-        .get(`/branches/${testBranchId}`)
-        .expect(200);
+      const response = await agent.get(`/branches/${testBranchId}`).expect(200);
 
       expect(response.body).toHaveProperty("branch_id", testBranchId);
     });
 
     it("should return 404 for non-existent branch", async () => {
-      await request(app).get("/branches/NON-EXISTENT").expect(404);
+      await agent.get("/branches/NON-EXISTENT").expect(404);
     });
   });
 
   describe("GET /branches/owner/:ownerId", () => {
     it("should get branches by owner", async () => {
-      const response = await request(app)
-        .get("/branches/owner/owner001")
-        .expect(200);
+      const response = await agent.get("/branches/owner/owner001").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
     });
@@ -78,7 +81,7 @@ describe("Branches API", () => {
 
   describe("GET /branches/location", () => {
     it("should get branches by location", async () => {
-      const response = await request(app)
+      const response = await agent
         .get("/branches/location?city=Manila&province=NCR")
         .expect(200);
 
@@ -88,12 +91,12 @@ describe("Branches API", () => {
 
   describe("PUT /branches/:branchId", () => {
     it("should update a branch", async () => {
-      const updates = {
-        branchContactNumber: "09987654321",
-        branchDescription: "Updated test branch",
+      const updates: Partial<IUpdateBranchParams> = {
+        branch_address: "456 Updated St",
+        branch_location: "Quezon City",
       };
 
-      const response = await request(app)
+      const response = await agent
         .put(`/branches/${testBranchId}`)
         .send(updates)
         .expect(200);
@@ -108,11 +111,11 @@ describe("Branches API", () => {
 
   describe("DELETE /branches/:branchId", () => {
     it("should delete a branch", async () => {
-      await request(app).delete(`/branches/${testBranchId}`).expect(200);
+      await agent.delete(`/branches/${testBranchId}`).expect(200);
     });
 
     it("should return 404 for non-existent branch", async () => {
-      await request(app).delete("/branches/NON-EXISTENT").expect(404);
+      await agent.delete("/branches/NON-EXISTENT").expect(404);
     });
   });
 });

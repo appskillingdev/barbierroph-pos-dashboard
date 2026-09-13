@@ -43,7 +43,7 @@ VALUES (
 );
 
 /* @name GetLatestSales */
-SELECT * FROM bph_sales ORDER BY transaction_date DESC;
+SELECT * FROM bph_sales WHERE branch_id = :branch_id ORDER BY transaction_date DESC;
 
 /* @name GetSalesByTransactionId */
 SELECT * FROM bph_sales WHERE transaction_id = :transaction_id;

@@ -6,6 +6,11 @@ import { BarbierroAPIRoutes } from "../src/apiRoutes.js";
 import { pool } from "../src/database/client.js";
 import bcrypt from "bcrypt";
 
+interface LoginPayload {
+  email: string;
+  password: string;
+}
+
 const app = express();
 
 // Session middleware for testing
@@ -73,7 +78,7 @@ describe("Auth API", () => {
         .send({
           email: testUser.email_address,
           password: testUser.password,
-        })
+        } satisfies LoginPayload)
         .expect(200);
 
       expect(response.body).toHaveProperty("success", true);
@@ -87,9 +92,11 @@ describe("Auth API", () => {
 
       // Store session cookie for later tests
       const cookies = response.headers["set-cookie"];
-      if (cookies && cookies.length > 0) {
-        sessionCookie = cookies[0];
-      }
+      // if (cookies && cookies.length > 0) {
+      //   sessionCookie = cookies[0];
+      // }
+      expect(cookies).toBeDefined();
+      expect(cookies?.length).toBeGreaterThan(0);
     });
 
     it("should reject login with invalid email", async () => {
@@ -98,7 +105,7 @@ describe("Auth API", () => {
         .send({
           email: "nonexistent@barbierro.com",
           password: "WrongPassword123!",
-        })
+        } satisfies LoginPayload)
         .expect(401);
 
       expect(response.body).toHaveProperty("error", "Invalid credentials");
@@ -110,7 +117,7 @@ describe("Auth API", () => {
         .send({
           email: testUser.email_address,
           password: "WrongPassword123!",
-        })
+        } satisfies LoginPayload)
         .expect(401);
 
       expect(response.body).toHaveProperty("error", "Invalid credentials");
@@ -121,7 +128,7 @@ describe("Auth API", () => {
         .post("/api/auth/login")
         .send({
           email: testUser.email_address,
-        })
+        } satisfies Partial<LoginPayload>)
         .expect(400);
 
       expect(response.body).toHaveProperty("error", "Missing credentials");
@@ -131,12 +138,17 @@ describe("Auth API", () => {
   describe("GET /api/auth/session", () => {
     it("should return authenticated user session", async () => {
       // First login to get session
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        email: testUser.email_address,
-        password: testUser.password,
-      });
+      const loginResponse = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: testUser.email_address,
+          password: testUser.password,
+        } satisfies LoginPayload);
 
       const cookies = loginResponse.headers["set-cookie"];
+      if (!cookies) {
+        throw new Error("Login did not return a session cookie");
+      }
 
       // Check session
       const response = await request(app)
@@ -162,12 +174,17 @@ describe("Auth API", () => {
   describe("POST /api/auth/logout", () => {
     it("should logout and destroy session", async () => {
       // First login to get session
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        email: testUser.email_address,
-        password: testUser.password,
-      });
+      const loginResponse = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: testUser.email_address,
+          password: testUser.password,
+        } satisfies LoginPayload);
 
       const cookies = loginResponse.headers["set-cookie"];
+      if (!cookies) {
+        throw new Error("Login did not return a session cookie");
+      }
 
       // Logout
       const response = await request(app)
@@ -245,30 +262,36 @@ describe("Authorization Middleware", () => {
 
   describe("User Type Permissions", () => {
     it("P01 (Master) should have all permissions", async () => {
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        email: testUsers.master.email_address,
-        password: testUsers.master.password,
-      });
+      const loginResponse = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: testUsers.master.email_address,
+          password: testUsers.master.password,
+        } satisfies LoginPayload);
 
       expect(loginResponse.body.user.userType).toBe("P01");
       // Master can access all resources
     });
 
     it("P02 (Branch Manager) should have limited permissions", async () => {
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        email: testUsers.branchManager.email_address,
-        password: testUsers.branchManager.password,
-      });
+      const loginResponse = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: testUsers.branchManager.email_address,
+          password: testUsers.branchManager.password,
+        } satisfies LoginPayload);
 
       expect(loginResponse.body.user.userType).toBe("P02");
       // Branch Manager can CRUD barbers, view analytics, but cannot manage branches
     });
 
     it("P03 (Cashier) should have minimal permissions", async () => {
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        email: testUsers.cashier.email_address,
-        password: testUsers.cashier.password,
-      });
+      const loginResponse = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: testUsers.cashier.email_address,
+          password: testUsers.cashier.password,
+        } satisfies LoginPayload);
 
       expect(loginResponse.body.user.userType).toBe("P03");
       // Cashier can only send sales data and view services/queue

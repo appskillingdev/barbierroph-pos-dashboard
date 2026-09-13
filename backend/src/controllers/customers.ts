@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createCustomer,
   getAllCustomers,
@@ -20,6 +22,10 @@ export default class CustomersController {
     try {
       const result = await createCustomer.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -31,8 +37,16 @@ export default class CustomersController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const customers = await getAllCustomers.run(undefined, client);
+      const customers = await runListQuery(
+        client,
+        listQueries.customers,
+        req.query,
+      );
       res.json(customers);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -50,6 +64,10 @@ export default class CustomersController {
         client,
       );
       res.json(customer);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -62,11 +80,23 @@ export default class CustomersController {
     const client = await pool.connect();
     try {
       const { name } = req.params;
-      const customers = await getCustomersByName.run(
-        { customer_name: `%${name}%` },
+      const customers = await runListQuery(
         client,
+        listQueries.customers,
+        req.query,
+        [
+          {
+            column: "customer_name",
+            value: name as string,
+            operator: "contains",
+          },
+        ],
       );
       res.json(customers);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -78,9 +108,23 @@ export default class CustomersController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const limit = parseInt(req.query.limit as string) || 10;
-      const customers = await getTopCustomers.run({ limit }, client);
+      const topQuery = {
+        ...req.query,
+        sortBy: req.query.sortBy ?? "visit_count",
+        sortOrder: req.query.sortOrder ?? "desc",
+        limit: req.query.limit ?? "10",
+      };
+      const customers = await runListQuery(
+        client,
+        listQueries.customers,
+        topQuery,
+        [],
+      );
       res.json(customers);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -98,6 +142,10 @@ export default class CustomersController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -115,6 +163,10 @@ export default class CustomersController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -129,6 +181,10 @@ export default class CustomersController {
       const { customerId } = req.params;
       await deleteCustomer.run({ customer_id: customerId as string }, client);
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

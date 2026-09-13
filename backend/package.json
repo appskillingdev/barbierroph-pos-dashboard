@@ -33,6 +33,7 @@
     "@vitest/eslint-plugin": "^1.6.26",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.2",
     "express-session": "^1.19.0",
@@ -41,7 +42,7 @@
     "lint-staged": "^17.3.0",
     "passport-local": "^1.0.0",
     "pg": "^8.23.0",
-    "prisma": "^6.12.0",
+    "prisma": "^7.9.1",
     "tsx": "^4.23.7",
     "vitest": "^4.1.10"
   },

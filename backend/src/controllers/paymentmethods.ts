@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createPaymentMethod,
   getAllPaymentMethods,
@@ -18,6 +20,10 @@ export default class PaymentMethodsController {
     try {
       const result = await createPaymentMethod.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -29,8 +35,16 @@ export default class PaymentMethodsController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const methods = await getAllPaymentMethods.run(undefined, client);
+      const methods = await runListQuery(
+        client,
+        listQueries.paymentMethods,
+        req.query,
+      );
       res.json(methods);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -48,6 +62,10 @@ export default class PaymentMethodsController {
         client,
       );
       res.json(method);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -65,6 +83,10 @@ export default class PaymentMethodsController {
         client,
       );
       res.json(method);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -82,6 +104,10 @@ export default class PaymentMethodsController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -99,6 +125,10 @@ export default class PaymentMethodsController {
         client,
       );
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

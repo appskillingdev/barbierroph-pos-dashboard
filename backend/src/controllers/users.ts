@@ -17,6 +17,10 @@ export default class UsersController {
     try {
       const result = await createUser.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -27,6 +31,10 @@ export default class UsersController {
     try {
       const users = await getAllUsers.run(undefined, client);
       res.json(users);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -38,6 +46,10 @@ export default class UsersController {
       const { id } = req.params;
       const user = await getUserById.run({ ID: id as string }, client);
       res.json(user);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -55,6 +67,10 @@ export default class UsersController {
         client,
       );
       res.json(user);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -72,6 +88,10 @@ export default class UsersController {
         client,
       );
       res.json(user);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -85,7 +105,11 @@ export default class UsersController {
         { ...req.body, ID: id as string },
         client,
       );
-      res.json(result);
+      res.status(200).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -102,7 +126,11 @@ export default class UsersController {
         { ID: id as string, password: req.body.password },
         client,
       );
-      res.json(result);
+      res.status(200).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -112,8 +140,18 @@ export default class UsersController {
     const client = await pool.connect();
     try {
       const { id } = req.params;
-      await deleteUser.run({ ID: id as string }, client);
-      res.status(204).send();
+      const users = await getUserById.run({ ID: id as string }, client);
+
+      if (users.length === 0) {
+        throw new Error("User not found");
+      } else {
+        await deleteUser.run({ ID: id as string }, client);
+        res.status(201).send();
+      }
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

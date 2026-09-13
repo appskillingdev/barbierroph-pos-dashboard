@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createSlot,
   getAllSlots,
@@ -19,6 +21,10 @@ export default class SlotsController {
     try {
       const result = await createSlot.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -27,8 +33,12 @@ export default class SlotsController {
   public getAllSlots = async (req: Request, res: Response): Promise<void> => {
     const client = await pool.connect();
     try {
-      const slots = await getAllSlots.run(undefined, client);
+      const slots = await runListQuery(client, listQueries.slots, req.query);
       res.json(slots);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -40,6 +50,10 @@ export default class SlotsController {
       const { id } = req.params;
       const slot = await getSlotById.run({ id: id as string }, client);
       res.json(slot);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -52,11 +66,14 @@ export default class SlotsController {
     const client = await pool.connect();
     try {
       const { branchId } = req.params;
-      const slots = await getSlotsByBranch.run(
-        { branch_id: branchId as string },
-        client,
-      );
+      const slots = await runListQuery(client, listQueries.slots, req.query, [
+        { column: "branch_id", value: branchId as string },
+      ]);
       res.json(slots);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -69,11 +86,14 @@ export default class SlotsController {
     const client = await pool.connect();
     try {
       const { barberId } = req.params;
-      const slots = await getSlotsByBarber.run(
-        { assigned_barber: barberId as string },
-        client,
-      );
+      const slots = await runListQuery(client, listQueries.slots, req.query, [
+        { column: "assigned_barber", value: barberId as string },
+      ]);
       res.json(slots);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -86,11 +106,14 @@ export default class SlotsController {
     const client = await pool.connect();
     try {
       const { status } = req.params;
-      const slots = await getSlotsByStatus.run(
-        { status: status as string },
-        client,
-      );
+      const slots = await runListQuery(client, listQueries.slots, req.query, [
+        { column: "status", value: status as string },
+      ]);
       res.json(slots);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -103,11 +126,15 @@ export default class SlotsController {
     const client = await pool.connect();
     try {
       const { branchId } = req.params;
-      const slots = await getAvailableSlotsByBranch.run(
-        { branch_id: branchId as string },
-        client,
-      );
+      const slots = await runListQuery(client, listQueries.slots, req.query, [
+        { column: "branch_id", value: branchId as string },
+        { column: "status", value: "available" },
+      ]);
       res.json(slots);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -122,6 +149,10 @@ export default class SlotsController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -139,6 +170,10 @@ export default class SlotsController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -150,6 +185,10 @@ export default class SlotsController {
       const { id } = req.params;
       await deleteSlot.run({ id: id as string }, client);
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

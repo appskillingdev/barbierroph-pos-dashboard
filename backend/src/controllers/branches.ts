@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { pool } from "../database/client.js";
+import { listQueries } from "./helper/listQueryDefinitions.js";
+import { runListQuery } from "./helper/sqlQueryHandler.js";
 import {
   createBranch,
   getAllBranches,
@@ -16,6 +18,10 @@ export default class BranchesController {
     try {
       const result = await createBranch.run(req.body, client);
       res.status(201).json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -27,8 +33,16 @@ export default class BranchesController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const branches = await getAllBranches.run(undefined, client);
+      const branches = await runListQuery(
+        client,
+        listQueries.branches,
+        req.query,
+      );
       res.json(branches);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -43,6 +57,10 @@ export default class BranchesController {
         client,
       );
       res.json(branch);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -55,11 +73,17 @@ export default class BranchesController {
     const client = await pool.connect();
     try {
       const { ownerId } = req.params;
-      const branches = await getBranchesByOwner.run(
-        { branch_owner: ownerId as string },
+      const branches = await runListQuery(
         client,
+        listQueries.branches,
+        req.query,
+        [{ column: "branch_owner", value: ownerId as string }],
       );
       res.json(branches);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -72,11 +96,17 @@ export default class BranchesController {
     const client = await pool.connect();
     try {
       const { location } = req.params;
-      const branches = await getBranchesByLocation.run(
-        { branch_location: location as string },
+      const branches = await runListQuery(
         client,
+        listQueries.branches,
+        req.query,
+        [{ column: "branch_location", value: location as string }],
       );
       res.json(branches);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -91,6 +121,10 @@ export default class BranchesController {
         client,
       );
       res.json(result);
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }
@@ -102,6 +136,10 @@ export default class BranchesController {
       const { branchId } = req.params;
       await deleteBranch.run({ branch_id: branchId as string }, client);
       res.status(204).send();
+    } catch (error) {
+      res.status(404).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
     } finally {
       client.release();
     }

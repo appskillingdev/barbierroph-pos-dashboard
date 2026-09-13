@@ -1,15 +1,18 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import request from "supertest";
-import express from "express";
-import { createRoutes } from "../src/apiRoutes.js";
 import { pool } from "../src/database/client.js";
-
-const app = express();
-app.use(express.json());
-createRoutes(app);
+import { createAuthenticatedAgent } from "./helpers/authenticatedAgent.js";
+import type {
+  ICreateSaleParams,
+  IUpdateSaleParams,
+} from "../src/queries/sales/sales.queries.js";
 
 describe("Sales API", () => {
   const testTransactionId = `TEST-TXN-${Date.now()}`;
+  let agent: Awaited<ReturnType<typeof createAuthenticatedAgent>>;
+
+  beforeAll(async () => {
+    agent = await createAuthenticatedAgent(true);
+  });
 
   afterAll(async () => {
     // Clean up test data
@@ -21,61 +24,66 @@ describe("Sales API", () => {
 
   describe("POST /sales", () => {
     it("should create a new sale", async () => {
-      const newSale = {
-        transactionId: testTransactionId,
-        transactionDate: "2024-01-15",
-        customerId: "cust001",
-        branchId: "branch001",
-        barberId: "barber001",
-        serviceCode: "REG-CUT",
-        totalAmount: 150.0,
-        paymentMethod: "cash",
-        referenceNo: "REF-TEST-001",
-        count1: 0,
-        count5: 0,
-        count10: 0,
-        count20: 1,
-        count50: 0,
-        count100: 1,
-        count200: 0,
-        count500: 0,
-        count1000: 0,
-        createdBy: "owner001",
+      const newSale: ICreateSaleParams = {
+        transaction_id: testTransactionId,
+        transaction_date: "2024-01-15",
+        customer_id: "cust001",
+        branch_id: "branch001",
+        barber_id: "barber001",
+        service_code: "REG-CUT",
+        total_amount: 150.0,
+        payment_method: "cash",
+        reference_no: "REF-TEST-001",
+        count_1: 0,
+        count_5: 0,
+        count_10: 0,
+        count_20: 1,
+        count_50: 0,
+        count_100: 1,
+        count_200: 0,
+        count_500: 0,
+        count_1000: 0,
+        created_by: "owner001",
       };
 
-      const response = await request(app)
-        .post("/sales")
-        .send(newSale)
-        .expect(201);
+      const response = await agent.post("/sales").send(newSale).expect(201);
 
       expect(response.body).toHaveProperty("transactionId", testTransactionId);
       expect(response.body).toHaveProperty("totalAmount", "150");
     });
 
     it("should return 400 for missing required fields", async () => {
-      const incompleteSale = {
-        transactionId: "INCOMPLETE-TXN",
-        transactionDate: "2024-01-15",
+      const incompleteSale: Partial<ICreateSaleParams> = {
+        transaction_id: "INCOMPLETE-TXN",
+        transaction_date: "2024-01-15",
       };
 
-      await request(app).post("/sales").send(incompleteSale).expect(400);
+      await agent.post("/sales").send(incompleteSale).expect(400);
     });
   });
 
   describe("GET /sales", () => {
     it("should get all sales", async () => {
-      const response = await request(app).get("/sales").expect(200);
+      const response = await agent.get("/sales").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
+    });
+
+    it("should filter and sort sales at the database level", async () => {
+      const response = await agent
+        .get(
+          "/sales?payment_method=cash&sortBy=transaction_date&sortOrder=desc&limit=10",
+        )
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
     });
   });
 
   describe("GET /sales/latest", () => {
     it("should get latest sales with limit", async () => {
-      const response = await request(app)
-        .get("/sales/latest?limit=5")
-        .expect(200);
+      const response = await agent.get("/sales/latest?limit=5").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeLessThanOrEqual(5);
@@ -84,7 +92,7 @@ describe("Sales API", () => {
 
   describe("GET /sales/transaction/:transactionId", () => {
     it("should get sales by transaction ID", async () => {
-      const response = await request(app)
+      const response = await agent
         .get(`/sales/transaction/${testTransactionId}`)
         .expect(200);
 
@@ -100,7 +108,7 @@ describe("Sales API", () => {
 
   describe("GET /sales/date-range", () => {
     it("should get sales by date range", async () => {
-      const response = await request(app)
+      const response = await agent
         .get("/sales/date-range?startDate=2024-01-01&endDate=2024-12-31")
         .expect(200);
 
@@ -108,15 +116,13 @@ describe("Sales API", () => {
     });
 
     it("should return 400 for missing date parameters", async () => {
-      await request(app).get("/sales/date-range").expect(400);
+      await agent.get("/sales/date-range").expect(400);
     });
   });
 
   describe("GET /sales/customer/:customerId", () => {
     it("should get sales by customer", async () => {
-      const response = await request(app)
-        .get("/sales/customer/cust001")
-        .expect(200);
+      const response = await agent.get("/sales/customer/cust001").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
     });
@@ -124,9 +130,7 @@ describe("Sales API", () => {
 
   describe("GET /sales/branch/:branchId", () => {
     it("should get sales by branch", async () => {
-      const response = await request(app)
-        .get("/sales/branch/branch001")
-        .expect(200);
+      const response = await agent.get("/sales/branch/branch001").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
     });
@@ -134,9 +138,7 @@ describe("Sales API", () => {
 
   describe("GET /sales/barber/:barberId", () => {
     it("should get sales by barber", async () => {
-      const response = await request(app)
-        .get("/sales/barber/barber001")
-        .expect(200);
+      const response = await agent.get("/sales/barber/barber001").expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
     });
@@ -144,7 +146,7 @@ describe("Sales API", () => {
 
   describe("GET /sales/payment-method/:paymentMethod", () => {
     it("should get sales by payment method", async () => {
-      const response = await request(app)
+      const response = await agent
         .get("/sales/payment-method/cash")
         .expect(200);
 
@@ -154,12 +156,12 @@ describe("Sales API", () => {
 
   describe("PUT /sales/:transactionId", () => {
     it("should update a sale", async () => {
-      const updates = {
-        totalAmount: 175.0,
-        paymentMethod: "gcash",
+      const updates: Partial<IUpdateSaleParams> = {
+        total_amount: 175.0,
+        payment_method: "gcash",
       };
 
-      const response = await request(app)
+      const response = await agent
         .put(`/sales/${testTransactionId}`)
         .send(updates)
         .expect(200);
@@ -169,9 +171,9 @@ describe("Sales API", () => {
     });
 
     it("should return 404 for non-existent transaction ID", async () => {
-      await request(app)
+      await agent
         .put("/sales/NON-EXISTENT-TXN")
-        .send({ totalAmount: 100 })
+        .send({ total_amount: 100 } satisfies Partial<IUpdateSaleParams>)
         .expect(404);
     });
   });
@@ -206,11 +208,11 @@ describe("Sales API", () => {
         ],
       );
 
-      await request(app).delete(`/sales/${tempTxnId}`).expect(200);
+      await agent.delete(`/sales/${tempTxnId}`).expect(200);
     });
 
     it("should return 404 for non-existent transaction ID", async () => {
-      await request(app).delete("/sales/NON-EXISTENT-TXN").expect(404);
+      await agent.delete("/sales/NON-EXISTENT-TXN").expect(404);
     });
   });
 });

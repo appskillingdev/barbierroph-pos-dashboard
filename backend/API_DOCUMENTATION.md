@@ -227,7 +227,7 @@ The project uses PGTyped for type-safe SQL queries:
 2. **Generate types**: PGTyped watch mode auto-generates `.queries.ts` files
 3. **Create controller**: Implement business logic using generated typed queries
 4. **Create route**: Define REST endpoints following the existing pattern
-5. **Register route**: Add to `createRoutes.ts`
+5. **Register route**: Add to `BarbierroAPIRoutes.ts`
 
 ## Notes
 
