@@ -200,7 +200,8 @@ Fields:
 
 Relations:
 - branch_owner -> bph_users.user_id
-- bph_branches 1:N bph_barbers
+- bph_branches 1:N bph_barbers (legacy bph_barbers.branch_id)
+- bph_branches 1:N bph_barber_branches
 - bph_branches 1:N bph_sales
 
 ---
@@ -241,9 +242,32 @@ Fields:
 - picture:Bytes
 - social_media:String
 - email_address:String
+- branch_id:String (nullable, legacy single branch; kept until callers move to bph_barber_branches)
+- date_availability:String (nullable, comma separated days, e.g. "01, 02")
+
+Ignore Virtual Fields:
+- _branches.branch_id (rollup of assigned branches)
 
 Relations:
+- bph_barbers N:M bph_branches through bph_barber_branches
 - bph_barbers 1:N bph_sales_item
+
+---
+
+# TABLE: bph_barber_branches
+Join table: a barber can be assigned to many branches.
+
+Composite Primary Key:
+- barber_id
+- branch_id
+
+Fields:
+- barber_id:String
+- branch_id:String
+
+Relations:
+- barber_id -> bph_barbers.barber_id (on delete cascade)
+- branch_id -> bph_branches.branch_id (on delete cascade)
 
 ---
 

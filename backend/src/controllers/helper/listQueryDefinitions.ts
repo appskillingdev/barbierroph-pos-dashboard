@@ -28,6 +28,7 @@ export const listQueries = {
       "address",
       "commission",
       "email_address",
+      "date_availability",
     ),
     defaultSort: "full_name",
   },

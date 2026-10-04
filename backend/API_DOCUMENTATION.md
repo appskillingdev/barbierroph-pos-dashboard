@@ -140,13 +140,16 @@ Each cost line consumes a `bph_inventory` product (`cost_id`). Reads include `de
 
 ### ✂️ Barbers (`/barbers`)
 
-- `POST /barbers` - Create new barber
+- `POST /barbers` - Create new barber (`branch_id`, if given, is also recorded as a branch assignment)
 - `GET /barbers` - Get all barbers
-- `GET /barbers/branch/:branchId` - Get barbers by branch
+- `GET /barbers/branch/:branchId` - Get barbers assigned to a branch (through `bph_barber_branches`)
 - `GET /barbers/position/:position` - Get barbers by position
-- `GET /barbers/:barberId` - Get barber by ID
+- `GET /barbers/:barberId` - Get barber by ID (includes `branch_ids`)
 - `PUT /barbers/:barberId` - Update barber
-- `DELETE /barbers/:barberId` - Delete barber
+- `DELETE /barbers/:barberId` - Delete barber (and its branch assignments)
+- `GET /barbers/:barberId/branches` - Get branches a barber is assigned to
+- `POST /barbers/:barberId/branches` - Assign barber to a branch (`{ "branch_id": "..." }`)
+- `DELETE /barbers/:barberId/branches/:branchId` - Unassign barber from a branch
 
 ### 📦 Inventory (`/inventory`)
 

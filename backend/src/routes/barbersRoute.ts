@@ -17,6 +17,18 @@ export function barbersRoute(): Router {
   // Get barbers by position
   router.get("/position/:position", controller.getBarbersByPosition);
 
+  // Get branches a barber is assigned to
+  router.get("/:barberId/branches", controller.getBarberBranches);
+
+  // Assign barber to a branch
+  router.post("/:barberId/branches", controller.assignBarberToBranch);
+
+  // Unassign barber from a branch
+  router.delete(
+    "/:barberId/branches/:branchId",
+    controller.unassignBarberFromBranch,
+  );
+
   // Get barber by ID
   router.get("/:barberId", controller.getBarberById);
 

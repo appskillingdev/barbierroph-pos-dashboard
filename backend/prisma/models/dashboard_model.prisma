@@ -71,15 +71,16 @@ model BphServiceCost {
 }
 
 model BphBranch {
-  branchId       String      @id @map("branch_id")
-  branchOwner    String      @map("branch_owner")
-  establishedAt  DateTime    @map("established_at") @db.Date
-  branchLocation String      @map("branch_location")
-  branchAddress  String      @map("branch_address")
-  branchImage    Bytes?      @map("branch_image")
-  socialMedia    String?     @map("social_media")
+  branchId       String            @id @map("branch_id")
+  branchOwner    String            @map("branch_owner")
+  establishedAt  DateTime          @map("established_at") @db.Date
+  branchLocation String            @map("branch_location")
+  branchAddress  String            @map("branch_address")
+  branchImage    Bytes?            @map("branch_image")
+  socialMedia    String?           @map("social_media")
   barbers        BphBarber[]
-  owner          BphUser     @relation(fields: [branchOwner], references: [userId])
+  barberBranches BphBarberBranch[]
+  owner          BphUser           @relation(fields: [branchOwner], references: [userId])
   sales          BphSale[]
   posSlots       PosSlot[]
 
@@ -104,21 +105,35 @@ model BphUser {
 }
 
 model BphBarber {
-  barberId     String        @id @default(uuid()) @map("barber_id")
-  branchId     String?       @map("branch_id")
-  position     String?
-  fullName     String        @map("full_name")
-  address      String?
-  commission   Decimal?
-  picture      Bytes?
-  socialMedia  String?       @map("social_media")
-  emailAddress String?       @map("email_address")
-  branch       BphBranch?    @relation(fields: [branchId], references: [branchId])
-  saleItems    BphSaleItem[]
-  posCheckouts PosCheckout[]
-  posSlots     PosSlot[]
+  barberId         String            @id @default(uuid()) @map("barber_id")
+  branchId         String?           @map("branch_id")
+  position         String?
+  fullName         String            @map("full_name")
+  address          String?
+  commission       Decimal?
+  picture          Bytes?
+  socialMedia      String?           @map("social_media")
+  emailAddress     String?           @map("email_address")
+  dateAvailability String?           @map("date_availability")
+  branch           BphBranch?        @relation(fields: [branchId], references: [branchId])
+  branches         BphBarberBranch[]
+  saleItems        BphSaleItem[]
+  posCheckouts     PosCheckout[]
+  posSlots         PosSlot[]
 
   @@map("bph_barbers")
+}
+
+// A barber can work across multiple branches. bph_barbers.branch_id is kept
+// as the legacy single-branch column until callers move to this table.
+model BphBarberBranch {
+  barberId String    @map("barber_id")
+  branchId String    @map("branch_id")
+  barber   BphBarber @relation(fields: [barberId], references: [barberId], onDelete: Cascade)
+  branch   BphBranch @relation(fields: [branchId], references: [branchId], onDelete: Cascade)
+
+  @@id([barberId, branchId])
+  @@map("bph_barber_branches")
 }
 
 model BphInventory {

@@ -6,26 +6,25 @@ GET {{baseUrl}}/barbers HTTP/1.1
 ### Filter and sort barbers
 GET {{baseUrl}}/barbers?branch_id=branch001&sortBy=full_name&sortOrder=asc&limit=10 HTTP/1.1
 
-### Get barber by ID
+### Get barber by ID (includes branch_ids)
 GET {{baseUrl}}/barbers/barber001 HTTP/1.1
 
-### Get barbers by branch
+### Get barbers assigned to a branch
 GET {{baseUrl}}/barbers/branch/branch001 HTTP/1.1
 
-### Create new barber
+### Create new barber (branch_id is also recorded as a branch assignment)
 POST {{baseUrl}}/barbers HTTP/1.1
 Content-Type: application/json
 
 {
-  "barberId": "TEST-BARBER",
-  "barberFirstName": "Test",
-  "barberLastName": "Barber",
-  "barberContactNumber": "09123456789",
-  "barberEmail": "testbarber@barbierro.com",
-  "branchId": "branch001",
-  "barberPayScheme": "commission",
-  "barberCommissionRate": 0.60,
-  "barberValidity": "ACTIVE"
+  "barber_id": "TEST-BARBER",
+  "branch_id": "branch001",
+  "position": "Barber",
+  "full_name": "Test Barber",
+  "address": "123 Test St",
+  "commission": 0.60,
+  "email_address": "testbarber@barbierro.com",
+  "date_availability": "01, 02, 03"
 }
 
 ### Update barber
@@ -33,9 +32,28 @@ PUT {{baseUrl}}/barbers/TEST-BARBER HTTP/1.1
 Content-Type: application/json
 
 {
-  "barberContactNumber": "09987654321",
-  "barberCommissionRate": 0.65
+  "branch_id": "branch001",
+  "position": "Barber",
+  "full_name": "Test Barber",
+  "address": "456 Updated St",
+  "commission": 0.65,
+  "email_address": "testbarber@barbierro.com",
+  "date_availability": "04, 05"
 }
+
+### Get branches a barber is assigned to
+GET {{baseUrl}}/barbers/TEST-BARBER/branches HTTP/1.1
+
+### Assign barber to another branch
+POST {{baseUrl}}/barbers/TEST-BARBER/branches HTTP/1.1
+Content-Type: application/json
+
+{
+  "branch_id": "branch002"
+}
+
+### Unassign barber from a branch
+DELETE {{baseUrl}}/barbers/TEST-BARBER/branches/branch002 HTTP/1.1
 
 ### Delete barber
 DELETE {{baseUrl}}/barbers/TEST-BARBER HTTP/1.1

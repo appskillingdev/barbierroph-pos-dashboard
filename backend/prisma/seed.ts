@@ -84,12 +84,12 @@ async function main() {
   console.log("✂️  Creating barbers...");
   await Promise.all([
     prisma.$executeRaw`
-      INSERT INTO bph_barbers (barber_id, branch_id, position, full_name, address, commission, email_address)
-      VALUES ('barber001', 'branch001', 'Senior Barber', 'Jose Garcia', 'Manila', 0.40, 'jose@barbierro.com')
+      INSERT INTO bph_barbers (barber_id, branch_id, position, full_name, address, commission, email_address, date_availability)
+      VALUES ('barber001', 'branch001', 'Senior Barber', 'Jose Garcia', 'Manila', 0.40, 'jose@barbierro.com', '01, 02, 03, 04, 05')
     `,
     prisma.$executeRaw`
-      INSERT INTO bph_barbers (barber_id, branch_id, position, full_name, address, commission, email_address)
-      VALUES ('barber002', 'branch001', 'Junior Barber', 'Rico Lopez', 'Manila', 0.30, 'rico@barbierro.com')
+      INSERT INTO bph_barbers (barber_id, branch_id, position, full_name, address, commission, email_address, date_availability)
+      VALUES ('barber002', 'branch001', 'Junior Barber', 'Rico Lopez', 'Manila', 0.30, 'rico@barbierro.com', '03, 04, 05, 06')
     `,
     prisma.$executeRaw`
       INSERT INTO bph_barbers (barber_id, branch_id, position, full_name, address, commission, email_address)
@@ -97,6 +97,17 @@ async function main() {
     `,
   ]);
   console.log("✅ Created 3 barbers");
+
+  // 3b. Assign barbers to branches (a barber can work in several branches)
+  console.log("🔗 Assigning barbers to branches...");
+  await Promise.all([
+    prisma.$executeRaw`
+      INSERT INTO bph_barber_branches (barber_id, branch_id)
+      VALUES ('barber001', 'branch001'), ('barber001', 'branch003'),
+             ('barber002', 'branch001'), ('barber003', 'branch002')
+    `,
+  ]);
+  console.log("✅ Created 4 barber branch assignments");
 
   // 4. Create Customers
   console.log("👤 Creating customers...");
