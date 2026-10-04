@@ -351,6 +351,7 @@ Fields:
 - contact_number:String
 - email_address:String
 - visit_count:Int
+- company:String (nullable)
 
 Relations:
 - bph_customers 1:N bph_sales

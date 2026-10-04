@@ -68,6 +68,7 @@ export const listQueries = {
       "contact_number",
       "email_address",
       "visit_count",
+      "company",
     ),
     defaultSort: "customer_name",
   },

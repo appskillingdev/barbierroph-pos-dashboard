@@ -5,6 +5,9 @@ GET {{baseUrl}}/customers HTTP/1.1
 ### Filter and sort customers
 GET {{baseUrl}}/customers?customer_name.contains=Test&sortBy=visit_count&sortOrder=desc&limit=10 HTTP/1.1
 
+### Filter customers by company
+GET {{baseUrl}}/customers?company.contains=AppSkilling HTTP/1.1
+
 ### Get customer by ID
 GET {{baseUrl}}/customers/cust001 HTTP/1.1
 
@@ -16,16 +19,13 @@ POST {{baseUrl}}/customers HTTP/1.1
 Content-Type: application/json
 
 {
-  "customerId": "TEST-CUST",
-  "customerFirstName": "Test",
-  "customerLastName": "Customer",
-  "customerGender": "M",
-  "customerContactNumber": "09123456789",
-  "customerEmail": "testcustomer@email.com",
-  "customerAddress": "123 Test St",
-  "customerVisitCount": 0,
-  "customerLoyaltyPoints": 0,
-  "customerStatus": "ACTIVE"
+  "customer_id": "TEST-CUST",
+  "customer_name": "Test Customer",
+  "customer_address": "123 Test St",
+  "contact_number": "09123456789",
+  "email_address": "testcustomer@email.com",
+  "visit_count": 0,
+  "company": "AppSkilling"
 }
 
 ### Update customer
@@ -33,12 +33,16 @@ PUT {{baseUrl}}/customers/TEST-CUST HTTP/1.1
 Content-Type: application/json
 
 {
-  "customerContactNumber": "09987654321",
-  "customerLoyaltyPoints": 100
+  "customer_name": "Test Customer",
+  "customer_address": "123 Test St",
+  "contact_number": "09987654321",
+  "email_address": "testcustomer@email.com",
+  "visit_count": 100,
+  "company": "Barbierro PH"
 }
 
 ### Increment customer visit count
-PUT {{baseUrl}}/customers/TEST-CUST/visit HTTP/1.1
+PATCH {{baseUrl}}/customers/TEST-CUST/visit HTTP/1.1
 
 ### Delete customer
 DELETE {{baseUrl}}/customers/TEST-CUST HTTP/1.1

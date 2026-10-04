@@ -20,8 +20,8 @@ export default class CustomersController {
   ): Promise<void> => {
     const client = await pool.connect();
     try {
-      const result = await createCustomer.run(req.body, client);
-      res.status(201).json(result);
+      const [createdCustomer] = await createCustomer.run(req.body, client);
+      res.status(201).json(createdCustomer);
     } catch (error) {
       res.status(404).json({
         error: error instanceof Error ? error.message : String(error),
@@ -59,10 +59,14 @@ export default class CustomersController {
     const client = await pool.connect();
     try {
       const { customerId } = req.params;
-      const customer = await getCustomerById.run(
+      const [customer] = await getCustomerById.run(
         { customer_id: customerId as string },
         client,
       );
+      if (!customer) {
+        res.status(404).json({ error: "Customer not found" });
+        return;
+      }
       res.json(customer);
     } catch (error) {
       res.status(404).json({
@@ -137,11 +141,15 @@ export default class CustomersController {
     const client = await pool.connect();
     try {
       const { customerId } = req.params;
-      const result = await updateCustomer.run(
+      const [updatedCustomer] = await updateCustomer.run(
         { ...req.body, customer_id: customerId as string },
         client,
       );
-      res.json(result);
+      if (!updatedCustomer) {
+        res.status(404).json({ error: "Customer not found" });
+        return;
+      }
+      res.json(updatedCustomer);
     } catch (error) {
       res.status(404).json({
         error: error instanceof Error ? error.message : String(error),
@@ -158,11 +166,15 @@ export default class CustomersController {
     const client = await pool.connect();
     try {
       const { customerId } = req.params;
-      const result = await incrementCustomerVisitCount.run(
+      const [customer] = await incrementCustomerVisitCount.run(
         { customer_id: customerId as string },
         client,
       );
-      res.json(result);
+      if (!customer) {
+        res.status(404).json({ error: "Customer not found" });
+        return;
+      }
+      res.json(customer);
     } catch (error) {
       res.status(404).json({
         error: error instanceof Error ? error.message : String(error),
@@ -179,7 +191,14 @@ export default class CustomersController {
     const client = await pool.connect();
     try {
       const { customerId } = req.params;
-      await deleteCustomer.run({ customer_id: customerId as string }, client);
+      const [deletedCustomer] = await deleteCustomer.run(
+        { customer_id: customerId as string },
+        client,
+      );
+      if (!deletedCustomer) {
+        res.status(404).json({ error: "Customer not found" });
+        return;
+      }
       res.status(204).send();
     } catch (error) {
       res.status(404).json({

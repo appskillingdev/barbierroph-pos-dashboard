@@ -5,6 +5,7 @@ export type NumberOrString = number | string;
 
 /** 'CreateCustomer' parameters type */
 export interface ICreateCustomerParams {
+  company?: string | null | void;
   contact_number?: string | null | void;
   customer_address?: string | null | void;
   customer_id?: string | null | void;
@@ -15,7 +16,16 @@ export interface ICreateCustomerParams {
 }
 
 /** 'CreateCustomer' return type */
-export type ICreateCustomerResult = void;
+export interface ICreateCustomerResult {
+  company: string | null;
+  contact_number: string | null;
+  customer_address: string | null;
+  customer_id: string;
+  customer_name: string;
+  email_address: string | null;
+  social_media: string | null;
+  visit_count: number | null;
+}
 
 /** 'CreateCustomer' query type */
 export interface ICreateCustomerQuery {
@@ -23,13 +33,14 @@ export interface ICreateCustomerQuery {
   result: ICreateCustomerResult;
 }
 
-const createCustomerIR: any = {"usedParamSet":{"customer_id":true,"customer_name":true,"customer_address":true,"social_media":true,"contact_number":true,"email_address":true,"visit_count":true},"params":[{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":139,"b":150}]},{"name":"customer_name","required":false,"transform":{"type":"scalar"},"locs":[{"a":153,"b":166}]},{"name":"customer_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":169,"b":185}]},{"name":"social_media","required":false,"transform":{"type":"scalar"},"locs":[{"a":188,"b":200}]},{"name":"contact_number","required":false,"transform":{"type":"scalar"},"locs":[{"a":203,"b":217}]},{"name":"email_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":220,"b":233}]},{"name":"visit_count","required":false,"transform":{"type":"scalar"},"locs":[{"a":236,"b":247}]}],"statement":"INSERT INTO bph_customers (customer_id, customer_name, customer_address, social_media, contact_number, email_address, visit_count)\nVALUES (:customer_id, :customer_name, :customer_address, :social_media, :contact_number, :email_address, :visit_count)"};
+const createCustomerIR: any = {"usedParamSet":{"customer_id":true,"customer_name":true,"customer_address":true,"social_media":true,"contact_number":true,"email_address":true,"visit_count":true,"company":true},"params":[{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":148,"b":159}]},{"name":"customer_name","required":false,"transform":{"type":"scalar"},"locs":[{"a":162,"b":175}]},{"name":"customer_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":178,"b":194}]},{"name":"social_media","required":false,"transform":{"type":"scalar"},"locs":[{"a":197,"b":209}]},{"name":"contact_number","required":false,"transform":{"type":"scalar"},"locs":[{"a":212,"b":226}]},{"name":"email_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":229,"b":242}]},{"name":"visit_count","required":false,"transform":{"type":"scalar"},"locs":[{"a":245,"b":256}]},{"name":"company","required":false,"transform":{"type":"scalar"},"locs":[{"a":259,"b":266}]}],"statement":"INSERT INTO bph_customers (customer_id, customer_name, customer_address, social_media, contact_number, email_address, visit_count, company)\nVALUES (:customer_id, :customer_name, :customer_address, :social_media, :contact_number, :email_address, :visit_count, :company)\nRETURNING *"};
 
 /**
  * Query generated from SQL:
  * ```
- * INSERT INTO bph_customers (customer_id, customer_name, customer_address, social_media, contact_number, email_address, visit_count)
- * VALUES (:customer_id, :customer_name, :customer_address, :social_media, :contact_number, :email_address, :visit_count)
+ * INSERT INTO bph_customers (customer_id, customer_name, customer_address, social_media, contact_number, email_address, visit_count, company)
+ * VALUES (:customer_id, :customer_name, :customer_address, :social_media, :contact_number, :email_address, :visit_count, :company)
+ * RETURNING *
  * ```
  */
 export const createCustomer = new PreparedQuery<ICreateCustomerParams,ICreateCustomerResult>(createCustomerIR);
@@ -40,6 +51,7 @@ export type IGetAllCustomersParams = void;
 
 /** 'GetAllCustomers' return type */
 export interface IGetAllCustomersResult {
+  company: string | null;
   contact_number: string | null;
   customer_address: string | null;
   customer_id: string;
@@ -73,6 +85,7 @@ export interface IGetCustomerByIdParams {
 
 /** 'GetCustomerById' return type */
 export interface IGetCustomerByIdResult {
+  company: string | null;
   contact_number: string | null;
   customer_address: string | null;
   customer_id: string;
@@ -106,6 +119,7 @@ export interface IGetCustomersByNameParams {
 
 /** 'GetCustomersByName' return type */
 export interface IGetCustomersByNameResult {
+  company: string | null;
   contact_number: string | null;
   customer_address: string | null;
   customer_id: string;
@@ -139,6 +153,7 @@ export interface IGetTopCustomersParams {
 
 /** 'GetTopCustomers' return type */
 export interface IGetTopCustomersResult {
+  company: string | null;
   contact_number: string | null;
   customer_address: string | null;
   customer_id: string;
@@ -167,6 +182,7 @@ export const getTopCustomers = new PreparedQuery<IGetTopCustomersParams,IGetTopC
 
 /** 'UpdateCustomer' parameters type */
 export interface IUpdateCustomerParams {
+  company?: string | null | void;
   contact_number?: string | null | void;
   customer_address?: string | null | void;
   customer_id?: string | null | void;
@@ -177,7 +193,16 @@ export interface IUpdateCustomerParams {
 }
 
 /** 'UpdateCustomer' return type */
-export type IUpdateCustomerResult = void;
+export interface IUpdateCustomerResult {
+  company: string | null;
+  contact_number: string | null;
+  customer_address: string | null;
+  customer_id: string;
+  customer_name: string;
+  email_address: string | null;
+  social_media: string | null;
+  visit_count: number | null;
+}
 
 /** 'UpdateCustomer' query type */
 export interface IUpdateCustomerQuery {
@@ -185,7 +210,7 @@ export interface IUpdateCustomerQuery {
   result: IUpdateCustomerResult;
 }
 
-const updateCustomerIR: any = {"usedParamSet":{"customer_name":true,"customer_address":true,"social_media":true,"contact_number":true,"email_address":true,"visit_count":true,"customer_id":true},"params":[{"name":"customer_name","required":false,"transform":{"type":"scalar"},"locs":[{"a":42,"b":55}]},{"name":"customer_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":81,"b":97}]},{"name":"social_media","required":false,"transform":{"type":"scalar"},"locs":[{"a":119,"b":131}]},{"name":"contact_number","required":false,"transform":{"type":"scalar"},"locs":[{"a":155,"b":169}]},{"name":"email_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":192,"b":205}]},{"name":"visit_count","required":false,"transform":{"type":"scalar"},"locs":[{"a":226,"b":237}]},{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":259,"b":270}]}],"statement":"UPDATE bph_customers \nSET customer_name = :customer_name,\n    customer_address = :customer_address,\n    social_media = :social_media,\n    contact_number = :contact_number,\n    email_address = :email_address,\n    visit_count = :visit_count\nWHERE customer_id = :customer_id"};
+const updateCustomerIR: any = {"usedParamSet":{"customer_name":true,"customer_address":true,"social_media":true,"contact_number":true,"email_address":true,"visit_count":true,"company":true,"customer_id":true},"params":[{"name":"customer_name","required":false,"transform":{"type":"scalar"},"locs":[{"a":42,"b":55}]},{"name":"customer_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":81,"b":97}]},{"name":"social_media","required":false,"transform":{"type":"scalar"},"locs":[{"a":119,"b":131}]},{"name":"contact_number","required":false,"transform":{"type":"scalar"},"locs":[{"a":155,"b":169}]},{"name":"email_address","required":false,"transform":{"type":"scalar"},"locs":[{"a":192,"b":205}]},{"name":"visit_count","required":false,"transform":{"type":"scalar"},"locs":[{"a":226,"b":237}]},{"name":"company","required":false,"transform":{"type":"scalar"},"locs":[{"a":254,"b":261}]},{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":283,"b":294}]}],"statement":"UPDATE bph_customers \nSET customer_name = :customer_name,\n    customer_address = :customer_address,\n    social_media = :social_media,\n    contact_number = :contact_number,\n    email_address = :email_address,\n    visit_count = :visit_count,\n    company = :company\nWHERE customer_id = :customer_id\nRETURNING *"};
 
 /**
  * Query generated from SQL:
@@ -196,8 +221,10 @@ const updateCustomerIR: any = {"usedParamSet":{"customer_name":true,"customer_ad
  *     social_media = :social_media,
  *     contact_number = :contact_number,
  *     email_address = :email_address,
- *     visit_count = :visit_count
+ *     visit_count = :visit_count,
+ *     company = :company
  * WHERE customer_id = :customer_id
+ * RETURNING *
  * ```
  */
 export const updateCustomer = new PreparedQuery<IUpdateCustomerParams,IUpdateCustomerResult>(updateCustomerIR);
@@ -209,7 +236,16 @@ export interface IIncrementCustomerVisitCountParams {
 }
 
 /** 'IncrementCustomerVisitCount' return type */
-export type IIncrementCustomerVisitCountResult = void;
+export interface IIncrementCustomerVisitCountResult {
+  company: string | null;
+  contact_number: string | null;
+  customer_address: string | null;
+  customer_id: string;
+  customer_name: string;
+  email_address: string | null;
+  social_media: string | null;
+  visit_count: number | null;
+}
 
 /** 'IncrementCustomerVisitCount' query type */
 export interface IIncrementCustomerVisitCountQuery {
@@ -217,7 +253,7 @@ export interface IIncrementCustomerVisitCountQuery {
   result: IIncrementCustomerVisitCountResult;
 }
 
-const incrementCustomerVisitCountIR: any = {"usedParamSet":{"customer_id":true},"params":[{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":89,"b":100}]}],"statement":"UPDATE bph_customers \nSET visit_count = COALESCE(visit_count, 0) + 1\nWHERE customer_id = :customer_id"};
+const incrementCustomerVisitCountIR: any = {"usedParamSet":{"customer_id":true},"params":[{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":89,"b":100}]}],"statement":"UPDATE bph_customers \nSET visit_count = COALESCE(visit_count, 0) + 1\nWHERE customer_id = :customer_id\nRETURNING *"};
 
 /**
  * Query generated from SQL:
@@ -225,6 +261,7 @@ const incrementCustomerVisitCountIR: any = {"usedParamSet":{"customer_id":true},
  * UPDATE bph_customers 
  * SET visit_count = COALESCE(visit_count, 0) + 1
  * WHERE customer_id = :customer_id
+ * RETURNING *
  * ```
  */
 export const incrementCustomerVisitCount = new PreparedQuery<IIncrementCustomerVisitCountParams,IIncrementCustomerVisitCountResult>(incrementCustomerVisitCountIR);
@@ -236,7 +273,16 @@ export interface IDeleteCustomerParams {
 }
 
 /** 'DeleteCustomer' return type */
-export type IDeleteCustomerResult = void;
+export interface IDeleteCustomerResult {
+  company: string | null;
+  contact_number: string | null;
+  customer_address: string | null;
+  customer_id: string;
+  customer_name: string;
+  email_address: string | null;
+  social_media: string | null;
+  visit_count: number | null;
+}
 
 /** 'DeleteCustomer' query type */
 export interface IDeleteCustomerQuery {
@@ -244,12 +290,13 @@ export interface IDeleteCustomerQuery {
   result: IDeleteCustomerResult;
 }
 
-const deleteCustomerIR: any = {"usedParamSet":{"customer_id":true},"params":[{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":57}]}],"statement":"DELETE FROM bph_customers WHERE customer_id = :customer_id"};
+const deleteCustomerIR: any = {"usedParamSet":{"customer_id":true},"params":[{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":57}]}],"statement":"DELETE FROM bph_customers WHERE customer_id = :customer_id\nRETURNING *"};
 
 /**
  * Query generated from SQL:
  * ```
  * DELETE FROM bph_customers WHERE customer_id = :customer_id
+ * RETURNING *
  * ```
  */
 export const deleteCustomer = new PreparedQuery<IDeleteCustomerParams,IDeleteCustomerResult>(deleteCustomerIR);

@@ -205,6 +205,7 @@ model BphCustomer {
   contactNumber   String?   @map("contact_number")
   emailAddress    String?   @map("email_address")
   visitCount      Int?      @default(0) @map("visit_count")
+  company         String?   @map("company")
   sales           BphSale[]
 
   @@map("bph_customers")

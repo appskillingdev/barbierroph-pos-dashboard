@@ -1,6 +1,7 @@
 /* @name CreateCustomer */
-INSERT INTO bph_customers (customer_id, customer_name, customer_address, social_media, contact_number, email_address, visit_count)
-VALUES (:customer_id, :customer_name, :customer_address, :social_media, :contact_number, :email_address, :visit_count);
+INSERT INTO bph_customers (customer_id, customer_name, customer_address, social_media, contact_number, email_address, visit_count, company)
+VALUES (:customer_id, :customer_name, :customer_address, :social_media, :contact_number, :email_address, :visit_count, :company)
+RETURNING *;
 
 /* @name GetAllCustomers */
 SELECT * FROM bph_customers ORDER BY customer_name;
@@ -21,13 +22,17 @@ SET customer_name = :customer_name,
     social_media = :social_media,
     contact_number = :contact_number,
     email_address = :email_address,
-    visit_count = :visit_count
-WHERE customer_id = :customer_id;
+    visit_count = :visit_count,
+    company = :company
+WHERE customer_id = :customer_id
+RETURNING *;
 
 /* @name IncrementCustomerVisitCount */
 UPDATE bph_customers 
 SET visit_count = COALESCE(visit_count, 0) + 1
-WHERE customer_id = :customer_id;
+WHERE customer_id = :customer_id
+RETURNING *;
 
 /* @name DeleteCustomer */
-DELETE FROM bph_customers WHERE customer_id = :customer_id;
+DELETE FROM bph_customers WHERE customer_id = :customer_id
+RETURNING *;

@@ -423,6 +423,7 @@ Fields:
 - contact_number:String
 - email_address:String
 - visit_count:Int
+- company:String (nullable)
 
 Relations:
 

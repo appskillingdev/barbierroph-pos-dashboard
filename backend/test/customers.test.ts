@@ -1,10 +1,13 @@
-import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import { pool } from "../src/database/client.js";
-import { createAuthenticatedAgent } from "./helpers/authenticatedAgent.js";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import type {
   ICreateCustomerParams,
+  ICreateCustomerResult,
   IUpdateCustomerParams,
 } from "../src/queries/customers/customers.queries.js";
+
+import { pool } from "../src/database/client.js";
+import { createAuthenticatedAgent } from "./helpers/authenticatedAgent.js";
 
 describe("Customers API", () => {
   const testCustomerId = `TEST-CUST-${Date.now()}`;
@@ -24,11 +27,12 @@ describe("Customers API", () => {
   describe("POST /customers", () => {
     it("should create a new customer", async () => {
       const newCustomer: ICreateCustomerParams = {
+        company: "AppSkilling",
+        contact_number: "09123456789",
+        customer_address: "123 Test St",
         customer_id: testCustomerId,
         customer_name: "Test Customer",
-        contact_number: "09123456789",
         email_address: "testcustomer@email.com",
-        customer_address: "123 Test St",
         visit_count: 0,
       };
 
@@ -36,17 +40,20 @@ describe("Customers API", () => {
         .post("/customers")
         .send(newCustomer)
         .expect(201);
+      const customer = response.body as ICreateCustomerResult;
 
-      expect(response.body).toHaveProperty("customer_id", testCustomerId);
+      expect(customer).toHaveProperty("customer_id", testCustomerId);
+      expect(customer).toHaveProperty("company", "AppSkilling");
     });
   });
 
   describe("GET /customers", () => {
     it("should get all customers", async () => {
       const response = await agent.get("/customers").expect(200);
+      const customers = response.body as ICreateCustomerResult[];
 
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      expect(Array.isArray(customers)).toBe(true);
+      expect(customers.length).toBeGreaterThan(0);
     });
 
     it("should filter and sort customers at the database level", async () => {
@@ -58,6 +65,17 @@ describe("Customers API", () => {
 
       expect(Array.isArray(response.body)).toBe(true);
     });
+
+    it("should filter customers by company", async () => {
+      const response = await agent
+        .get("/customers?company=AppSkilling")
+        .expect(200);
+      const customers = response.body as ICreateCustomerResult[];
+
+      expect(customers.map((customer) => customer.customer_id)).toContain(
+        testCustomerId,
+      );
+    });
   });
 
   describe("GET /customers/:customerId", () => {
@@ -65,8 +83,10 @@ describe("Customers API", () => {
       const response = await agent
         .get(`/customers/${testCustomerId}`)
         .expect(200);
+      const customer = response.body as ICreateCustomerResult;
 
-      expect(response.body).toHaveProperty("customer_id", testCustomerId);
+      expect(customer).toHaveProperty("customer_id", testCustomerId);
+      expect(customer).toHaveProperty("company", "AppSkilling");
     });
 
     it("should return 404 for non-existent customer", async () => {
@@ -84,8 +104,12 @@ describe("Customers API", () => {
 
   describe("PUT /customers/:customerId", () => {
     it("should update a customer", async () => {
-      const updates: Partial<IUpdateCustomerParams> = {
+      const updates: Omit<IUpdateCustomerParams, "customer_id"> = {
+        company: "Barbierro PH",
         contact_number: "09987654321",
+        customer_address: "123 Test St",
+        customer_name: "Test Customer",
+        email_address: "testcustomer@email.com",
         visit_count: 100,
       };
 
@@ -93,29 +117,36 @@ describe("Customers API", () => {
         .put(`/customers/${testCustomerId}`)
         .send(updates)
         .expect(200);
+      const customer = response.body as ICreateCustomerResult;
 
-      expect(response.body).toHaveProperty("customer_id", testCustomerId);
-      expect(response.body).toHaveProperty(
-        "customer_contact_number",
-        "09987654321",
-      );
+      expect(customer).toHaveProperty("customer_id", testCustomerId);
+      expect(customer).toHaveProperty("contact_number", "09987654321");
+      expect(customer).toHaveProperty("company", "Barbierro PH");
+    });
+
+    it("should return 404 for non-existent customer", async () => {
+      await agent
+        .put("/customers/NON-EXISTENT")
+        .send({ customer_name: "Nobody" })
+        .expect(404);
     });
   });
 
-  describe("PUT /customers/:customerId/visit", () => {
+  describe("PATCH /customers/:customerId/visit", () => {
     it("should increment customer visit count", async () => {
       const response = await agent
-        .put(`/customers/${testCustomerId}/visit`)
+        .patch(`/customers/${testCustomerId}/visit`)
         .expect(200);
+      const customer = response.body as ICreateCustomerResult;
 
-      expect(response.body).toHaveProperty("customer_id", testCustomerId);
-      expect(Number(response.body.customer_visit_count)).toBeGreaterThan(0);
+      expect(customer).toHaveProperty("customer_id", testCustomerId);
+      expect(customer.visit_count).toBe(101);
     });
   });
 
   describe("DELETE /customers/:customerId", () => {
     it("should delete a customer", async () => {
-      await agent.delete(`/customers/${testCustomerId}`).expect(200);
+      await agent.delete(`/customers/${testCustomerId}`).expect(204);
     });
 
     it("should return 404 for non-existent customer", async () => {
