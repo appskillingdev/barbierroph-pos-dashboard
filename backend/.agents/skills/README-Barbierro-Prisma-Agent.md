@@ -164,18 +164,20 @@ Relations:
 Composite Primary Key:
 - service_code
 - item_number
-- cost_category
 - cost_id
 
 Fields:
 - service_code:String
 - item_number:String
-- cost_category:String
-- cost_id:String
+- cost_category:String (always product/inventory)
+- cost_id:String (always a bph_inventory product)
+- multiplier:Int (nullable; scales cost_amount per service, e.g. long hair)
 
 Ignore Virtual Fields:
-- description
-- cost_amount
+- description (bph_inventory.product_name)
+- cost_amount (bph_inventory.unit_cost x multiplier)
+- minimum_qty (bph_inventory.miniumum_stock)
+- status (e.g. LOW_STOCK when current quantity is below minimum_qty)
 
 Relations:
 - service_code -> bph_services.service_code

@@ -62,10 +62,11 @@ model BphServiceCost {
   itemNumber    String       @map("item_number")
   costCategory  String       @map("cost_category")
   costId        String       @map("cost_id")
+  multiplier    Int?         @map("multiplier")
   inventoryItem BphInventory @relation(fields: [costId], references: [productId])
   service       BphService   @relation(fields: [serviceCode], references: [serviceCode])
 
-  @@id([serviceCode, itemNumber, costCategory, costId])
+  @@id([serviceCode, itemNumber, costId])
   @@map("bph_services_cost")
 }
 

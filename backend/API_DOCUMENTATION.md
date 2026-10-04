@@ -51,6 +51,7 @@ backend/src/
 ├── controllers/               # Business logic
 │   ├── sales.ts
 │   ├── services.ts
+│   ├── servicesCost.ts
 │   ├── branches.ts
 │   ├── users.ts
 │   ├── barbers.ts
@@ -105,6 +106,16 @@ backend/src/
 - `GET /services/:serviceCode` - Get service by code
 - `PUT /services/:serviceCode` - Update service
 - `DELETE /services/:serviceCode` - Delete service
+
+#### 💰 Service costs (`/services/:serviceCode/costs`)
+
+Each cost line consumes a `bph_inventory` product (`cost_id`). Reads include `description`, `unit_cost`, `cost_amount` (`unit_cost` × `multiplier`, default 1) and `minimum_qty` from the inventory.
+
+- `GET /services/:serviceCode/costs` - Get cost breakdown of a service
+- `GET /services/costs/product/:costId` - Get service costs that use an inventory product
+- `POST /services/:serviceCode/costs` - Add service cost (`item_number` defaults to the next number)
+- `PUT /services/:serviceCode/costs/:itemNumber/:costId` - Update service cost (`cost_category`, `multiplier`)
+- `DELETE /services/:serviceCode/costs/:itemNumber/:costId` - Delete service cost
 
 ### 🏢 Branches (`/branches`)
 
