@@ -5,13 +5,13 @@
 GET {{baseUrl}}/sales HTTP/1.1
 
 ### Filter and sort sales
-GET {{baseUrl}}/sales?payment_method=cash&sortBy=transaction_date&sortOrder=desc&limit=10 HTTP/1.1
+GET {{baseUrl}}/sales?payment_method=pm001&sortBy=transaction_date&sortOrder=desc&limit=10 HTTP/1.1
 
 ### Get latest 10 sales
-GET {{baseUrl}}/sales/latest?limit=10 HTTP/1.1
+GET {{baseUrl}}/sales?limit=10 HTTP/1.1
 
 ### Get sales by transaction ID
-GET {{baseUrl}}/sales/transaction/TXN-001 HTTP/1.1
+GET {{baseUrl}}/sales/TXN-TEST-001 HTTP/1.1
 
 ### Get sales by date range
 GET {{baseUrl}}/sales/date-range?startDate=2024-01-01&endDate=2024-12-31 HTTP/1.1
@@ -22,36 +22,40 @@ GET {{baseUrl}}/sales/customer/cust001 HTTP/1.1
 ### Get sales by branch
 GET {{baseUrl}}/sales/branch/branch001 HTTP/1.1
 
-### Get sales by barber
+### Get sales by barber (sales with at least one item served by the barber)
 GET {{baseUrl}}/sales/barber/barber001 HTTP/1.1
 
 ### Get sales by payment method
-GET {{baseUrl}}/sales/payment-method/cash HTTP/1.1
+GET {{baseUrl}}/sales/payment-method/pm001 HTTP/1.1
 
-### Create new sale
+### Create new sale (header + items)
+# item_number defaults to 01, 02, ...; amount defaults to the service amount
 POST {{baseUrl}}/sales HTTP/1.1
 Content-Type: application/json
 
 {
-  "transactionId": "TXN-TEST-001",
-  "transactionDate": "2024-01-15",
-  "customerId": "cust001",
-  "branchId": "branch001",
-  "barberId": "barber001",
-  "serviceCode": "REG-CUT",
-  "totalAmount": 150.00,
-  "paymentMethod": "cash",
-  "referenceNo": "REF-001",
-  "count1": 0,
-  "count5": 0,
-  "count10": 0,
-  "count20": 1,
-  "count50": 0,
-  "count100": 1,
-  "count200": 0,
-  "count500": 0,
-  "count1000": 0,
-  "createdBy": "owner001"
+  "transaction_id": "TXN-TEST-001",
+  "transaction_date": "2024-01-15",
+  "customer_id": "cust001",
+  "branch_id": "branch001",
+  "total_amount": 250.00,
+  "payment_method": "pm001",
+  "reference_no": "REF-001",
+  "count_1": 0,
+  "count_5": 0,
+  "count_10": 0,
+  "count_20": 0,
+  "count_50": 1,
+  "count_100": 2,
+  "count_200": 0,
+  "count_500": 0,
+  "count_1000": 0,
+  "created_by": "owner001",
+  "remarks": "Haircut + beard trim",
+  "items": [
+    { "service_code": "svc001", "barber_id": "barber001", "amount": 150.00 },
+    { "service_code": "svc003", "barber_id": "barber002" }
+  ]
 }
 
 ### Update sale
@@ -59,9 +63,37 @@ PUT {{baseUrl}}/sales/TXN-TEST-001 HTTP/1.1
 Content-Type: application/json
 
 {
-  "totalAmount": 175.00,
-  "paymentMethod": "gcash"
+  "total_amount": 175.00,
+  "payment_method": "pm002",
+  "reference_no": "GCASH-001",
+  "created_by": "owner001",
+  "remarks": "Switched to GCash"
 }
 
-### Delete sale
+### Get sale items of a transaction
+GET {{baseUrl}}/sales/TXN-TEST-001/items HTTP/1.1
+
+### Add sale item (item_number defaults to the next number)
+POST {{baseUrl}}/sales/TXN-TEST-001/items HTTP/1.1
+Content-Type: application/json
+
+{
+  "service_code": "svc002",
+  "barber_id": "barber001"
+}
+
+### Update sale item
+PUT {{baseUrl}}/sales/TXN-TEST-001/items/03 HTTP/1.1
+Content-Type: application/json
+
+{
+  "service_code": "svc002",
+  "barber_id": "barber002",
+  "amount": 275.00
+}
+
+### Delete sale item
+DELETE {{baseUrl}}/sales/TXN-TEST-001/items/03 HTTP/1.1
+
+### Delete sale (items are deleted with it)
 DELETE {{baseUrl}}/sales/TXN-TEST-001 HTTP/1.1

@@ -11,7 +11,9 @@ backend/src/
 ├── queries/                    # SQL queries organized by context
 │   ├── sales/
 │   │   ├── sales.sql
-│   │   └── sales.queries.ts   # Generated TypeScript types
+│   │   ├── sales.queries.ts   # Generated TypeScript types
+│   │   ├── sales_item.sql
+│   │   └── sales_item.queries.ts
 │   ├── services/
 │   │   ├── services.sql
 │   │   ├── services.queries.ts
@@ -76,16 +78,23 @@ backend/src/
 
 ### 📊 Sales (`/sales`)
 
-- `POST /sales` - Create new sale
+- `POST /sales` - Create new sale with its line items (`items` array, at least one; header and items are saved in one transaction)
 - `GET /sales` - Get all sales (latest first)
 - `GET /sales/date-range?startDate=&endDate=` - Get sales by date range
 - `GET /sales/customer/:customerId` - Get sales by customer
 - `GET /sales/branch/:branchId` - Get sales by branch
-- `GET /sales/barber/:barberId` - Get sales by barber
+- `GET /sales/barber/:barberId` - Get sales (headers) that have at least one item served by the barber
 - `GET /sales/payment-method/:paymentMethod` - Get sales by payment method
 - `GET /sales/:transactionId` - Get sale by transaction ID
-- `PUT /sales` - Update sale (requires composite key in body)
-- `DELETE /sales` - Delete sale (requires composite key in body)
+- `PUT /sales/:transactionId` - Update sale header
+- `DELETE /sales/:transactionId` - Delete sale and its items
+
+#### 🧾 Sale items (`/sales/:transactionId/items`)
+
+- `GET /sales/:transactionId/items` - Get line items of a sale
+- `POST /sales/:transactionId/items` - Add line item (`item_number` defaults to the next number, `amount` defaults to the service amount)
+- `PUT /sales/:transactionId/items/:itemNumber` - Update line item
+- `DELETE /sales/:transactionId/items/:itemNumber` - Delete line item
 
 ### 🛠️ Services (`/services`)
 

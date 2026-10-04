@@ -87,14 +87,18 @@ Relations:
 
 # TABLE: bph_sales
 
+Sale header. Line items (service/barber per item) live in bph_sales_item.
+
 Composite Primary Key:
 
 - transaction_id
 - transaction_date
 - customer_id
 - branch_id
-- barber_id
-- service_code
+
+Unique:
+
+- transaction_id (referenced by bph_sales_item)
 
 Fields:
 
@@ -102,8 +106,6 @@ Fields:
 - transaction_date:Date
 - customer_id:String
 - branch_id:String
-- barber_id:String
-- service_code:String
 - total_amount:Decimal
 - payment_method:String
 - reference_no:String
@@ -117,6 +119,7 @@ Fields:
 - count_500:Int
 - count_1000:Int
 - created_by:String
+- remarks:String (nullable, free text from cashier)
 
 Ignore Virtual Fields:
 
@@ -135,9 +138,31 @@ Relations:
 
 - customer_id -> bph_customers.customer_id
 - branch_id -> bph_branches.branch_id
-- barber_id -> bph_barbers.barber_id
-- service_code -> bph_services.service_code
 - payment_method -> bph_paymentmethods.payment_method_id
+- bph_sales 1:N bph_sales_item
+
+---
+
+# TABLE: bph_sales_item
+
+Composite Primary Key:
+
+- transaction_id
+- item_number
+
+Fields:
+
+- transaction_id:String
+- item_number:String (01, 02, 03...)
+- service_code:String
+- barber_id:String
+- amount:Decimal (defaults to bph_services.service_amount, editable)
+
+Relations:
+
+- transaction_id -> bph_sales.transaction_id (on delete cascade)
+- service_code -> bph_services.service_code
+- barber_id -> bph_barbers.barber_id
 
 ---
 
@@ -165,6 +190,7 @@ Ignore Virtual Fields:
 Relations:
 
 - bph_services 1:N bph_services_cost
+- bph_services 1:N bph_sales_item
 
 ---
 
@@ -266,7 +292,7 @@ Fields:
 
 Relations:
 
-- bph_barbers 1:N bph_sales
+- bph_barbers 1:N bph_sales_item
 
 ---
 

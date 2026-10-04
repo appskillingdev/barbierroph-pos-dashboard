@@ -4,8 +4,6 @@ INSERT INTO bph_sales (
     transaction_date, 
     customer_id, 
     branch_id, 
-    barber_id, 
-    service_code, 
     total_amount, 
     payment_method, 
     reference_no, 
@@ -18,15 +16,14 @@ INSERT INTO bph_sales (
     count_200, 
     count_500, 
     count_1000, 
-    created_by
+    created_by, 
+    remarks
 )
 VALUES (
     :transaction_id, 
     :transaction_date, 
     :customer_id, 
     :branch_id, 
-    :barber_id, 
-    :service_code, 
     :total_amount, 
     :payment_method, 
     :reference_no, 
@@ -39,8 +36,10 @@ VALUES (
     :count_200, 
     :count_500, 
     :count_1000, 
-    :created_by
-);
+    :created_by, 
+    :remarks
+)
+RETURNING *;
 
 /* @name GetLatestSales */
 SELECT * FROM bph_sales WHERE branch_id = :branch_id ORDER BY transaction_date DESC;
@@ -58,7 +57,9 @@ SELECT * FROM bph_sales WHERE customer_id = :customer_id ORDER BY transaction_da
 SELECT * FROM bph_sales WHERE branch_id = :branch_id ORDER BY transaction_date DESC;
 
 /* @name GetSalesByBarber */
-SELECT * FROM bph_sales WHERE barber_id = :barber_id ORDER BY transaction_date DESC;
+SELECT * FROM bph_sales 
+WHERE transaction_id IN (SELECT transaction_id FROM bph_sales_item WHERE barber_id = :barber_id) 
+ORDER BY transaction_date DESC;
 
 /* @name GetSalesByPaymentMethod */
 SELECT * FROM bph_sales WHERE payment_method = :payment_method ORDER BY transaction_date DESC;
@@ -77,19 +78,12 @@ SET total_amount = :total_amount,
     count_200 = :count_200,
     count_500 = :count_500,
     count_1000 = :count_1000,
-    created_by = :created_by
-WHERE transaction_id = :transaction_id 
-    AND transaction_date = :transaction_date 
-    AND customer_id = :customer_id 
-    AND branch_id = :branch_id 
-    AND barber_id = :barber_id 
-    AND service_code = :service_code;
+    created_by = :created_by,
+    remarks = :remarks
+WHERE transaction_id = :transaction_id
+RETURNING *;
 
 /* @name DeleteSale */
 DELETE FROM bph_sales 
-WHERE transaction_id = :transaction_id 
-    AND transaction_date = :transaction_date 
-    AND customer_id = :customer_id 
-    AND branch_id = :branch_id 
-    AND barber_id = :barber_id 
-    AND service_code = :service_code;
+WHERE transaction_id = :transaction_id
+RETURNING *;

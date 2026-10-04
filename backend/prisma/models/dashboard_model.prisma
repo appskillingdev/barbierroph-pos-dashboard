@@ -1,10 +1,8 @@
 model BphSale {
-  transactionId    String           @map("transaction_id")
+  transactionId    String           @unique @map("transaction_id")
   transactionDate  DateTime         @map("transaction_date") @db.Date
   customerId       String           @map("customer_id")
   branchId         String           @map("branch_id")
-  barberId         String           @map("barber_id")
-  serviceCode      String           @map("service_code")
   totalAmount      Decimal          @map("total_amount")
   paymentMethod    String           @map("payment_method")
   referenceNo      String?          @map("reference_no")
@@ -18,14 +16,28 @@ model BphSale {
   count500         Int?             @map("count_500")
   count1000        Int?             @map("count_1000")
   createdBy        String?          @map("created_by")
-  barber           BphBarber        @relation(fields: [barberId], references: [barberId])
+  remarks          String?          @map("remarks")
   branch           BphBranch        @relation(fields: [branchId], references: [branchId])
   customer         BphCustomer      @relation(fields: [customerId], references: [customerId])
   paymentMethodRef BphPaymentMethod @relation(fields: [paymentMethod], references: [paymentMethodId])
-  service          BphService       @relation(fields: [serviceCode], references: [serviceCode])
+  items            BphSaleItem[]
 
-  @@id([transactionId, transactionDate, customerId, branchId, barberId, serviceCode])
+  @@id([transactionId, transactionDate, customerId, branchId])
   @@map("bph_sales")
+}
+
+model BphSaleItem {
+  transactionId String     @map("transaction_id")
+  itemNumber    String     @map("item_number")
+  serviceCode   String     @map("service_code")
+  barberId      String     @map("barber_id")
+  amount        Decimal
+  sale          BphSale    @relation(fields: [transactionId], references: [transactionId], onDelete: Cascade)
+  service       BphService @relation(fields: [serviceCode], references: [serviceCode])
+  barber        BphBarber  @relation(fields: [barberId], references: [barberId])
+
+  @@id([transactionId, itemNumber])
+  @@map("bph_sales_item")
 }
 
 model BphService {
@@ -37,7 +49,7 @@ model BphService {
   serviceAmount      Decimal          @map("service_amount")
   icon               Bytes?
   isPromo            Boolean          @default(false) @map("is_promo")
-  sales              BphSale[]
+  saleItems          BphSaleItem[]
   serviceCosts       BphServiceCost[]
   posCheckouts       PosCheckout[]
   posQueues          PosQueue[]
@@ -101,7 +113,7 @@ model BphBarber {
   socialMedia  String?       @map("social_media")
   emailAddress String?       @map("email_address")
   branch       BphBranch?    @relation(fields: [branchId], references: [branchId])
-  sales        BphSale[]
+  saleItems    BphSaleItem[]
   posCheckouts PosCheckout[]
   posSlots     PosSlot[]
 

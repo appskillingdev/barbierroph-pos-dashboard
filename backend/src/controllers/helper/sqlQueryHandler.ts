@@ -15,7 +15,8 @@ export interface ListQueryDefinition {
 export interface ListCondition {
   column?: string;
   value?: string | number | boolean | Date;
-  raw?: string;
+  // A function receives the bound placeholder for `value` (e.g. "$1")
+  raw?: string | ((placeholder: string) => string);
   operator?: "eq" | "contains" | "gte" | "lte";
 }
 
@@ -113,6 +114,12 @@ export async function runListQuery<T extends object>(
   const values: Array<string | number | boolean | Date> = [];
 
   for (const condition of baseConditions) {
+    if (typeof condition.raw === "function") {
+      if (condition.value === undefined) continue;
+      values.push(condition.value);
+      conditions.push(condition.raw(`$${values.length}`));
+      continue;
+    }
     if (condition.raw) {
       conditions.push(condition.raw);
       continue;

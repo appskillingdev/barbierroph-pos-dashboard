@@ -210,19 +210,41 @@ async function main() {
   console.log("💵 Creating sales...");
   await Promise.all([
     prisma.$executeRaw`
-      INSERT INTO bph_sales (transaction_id, transaction_date, customer_id, branch_id, barber_id, service_code, total_amount, payment_method)
-      VALUES ('txn001', '2026-08-10', 'cust001', 'branch001', 'barber001', 'svc001', 150.00, 'pm001')
+      INSERT INTO bph_sales (transaction_id, transaction_date, customer_id, branch_id, total_amount, payment_method)
+      VALUES ('txn001', '2026-08-10', 'cust001', 'branch001', 150.00, 'pm001')
     `,
     prisma.$executeRaw`
-      INSERT INTO bph_sales (transaction_id, transaction_date, customer_id, branch_id, barber_id, service_code, total_amount, payment_method)
-      VALUES ('txn002', '2026-08-12', 'cust002', 'branch002', 'barber003', 'svc002', 250.00, 'pm002')
+      INSERT INTO bph_sales (transaction_id, transaction_date, customer_id, branch_id, total_amount, payment_method, remarks)
+      VALUES ('txn002', '2026-08-12', 'cust002', 'branch002', 350.00, 'pm002', 'Haircut + beard trim')
     `,
     prisma.$executeRaw`
-      INSERT INTO bph_sales (transaction_id, transaction_date, customer_id, branch_id, barber_id, service_code, total_amount, payment_method, reference_no)
-      VALUES ('txn003', '2026-08-14', 'cust003', 'branch001', 'barber002', 'svc003', 100.00, 'pm002', 'GCASH123456')
+      INSERT INTO bph_sales (transaction_id, transaction_date, customer_id, branch_id, total_amount, payment_method, reference_no)
+      VALUES ('txn003', '2026-08-14', 'cust003', 'branch001', 100.00, 'pm002', 'GCASH123456')
     `,
   ]);
   console.log("✅ Created 3 sales records");
+
+  // 10b. Create Sales Items (line items of each sale)
+  console.log("🧾 Creating sales items...");
+  await Promise.all([
+    prisma.$executeRaw`
+      INSERT INTO bph_sales_item (transaction_id, item_number, service_code, barber_id, amount)
+      VALUES ('txn001', '01', 'svc001', 'barber001', 150.00)
+    `,
+    prisma.$executeRaw`
+      INSERT INTO bph_sales_item (transaction_id, item_number, service_code, barber_id, amount)
+      VALUES ('txn002', '01', 'svc002', 'barber003', 250.00)
+    `,
+    prisma.$executeRaw`
+      INSERT INTO bph_sales_item (transaction_id, item_number, service_code, barber_id, amount)
+      VALUES ('txn002', '02', 'svc003', 'barber003', 100.00)
+    `,
+    prisma.$executeRaw`
+      INSERT INTO bph_sales_item (transaction_id, item_number, service_code, barber_id, amount)
+      VALUES ('txn003', '01', 'svc003', 'barber002', 100.00)
+    `,
+  ]);
+  console.log("✅ Created 4 sales items");
 
   // 11. Create Inventory Trail
   console.log("📊 Creating inventory trail...");

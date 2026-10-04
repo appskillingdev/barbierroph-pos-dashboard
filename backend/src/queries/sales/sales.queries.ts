@@ -7,7 +7,6 @@ export type NumberOrString = number | string;
 
 /** 'CreateSale' parameters type */
 export interface ICreateSaleParams {
-  barber_id?: string | null | void;
   branch_id?: string | null | void;
   count_1?: number | null | void;
   count_10?: number | null | void;
@@ -22,14 +21,33 @@ export interface ICreateSaleParams {
   customer_id?: string | null | void;
   payment_method?: string | null | void;
   reference_no?: string | null | void;
-  service_code?: string | null | void;
+  remarks?: string | null | void;
   total_amount?: NumberOrString | null | void;
   transaction_date?: DateOrString | null | void;
   transaction_id?: string | null | void;
 }
 
 /** 'CreateSale' return type */
-export type ICreateSaleResult = void;
+export interface ICreateSaleResult {
+  branch_id: string;
+  count_1: number | null;
+  count_10: number | null;
+  count_100: number | null;
+  count_1000: number | null;
+  count_20: number | null;
+  count_200: number | null;
+  count_5: number | null;
+  count_50: number | null;
+  count_500: number | null;
+  created_by: string | null;
+  customer_id: string;
+  payment_method: string;
+  reference_no: string | null;
+  remarks: string | null;
+  total_amount: string;
+  transaction_date: Date;
+  transaction_id: string;
+}
 
 /** 'CreateSale' query type */
 export interface ICreateSaleQuery {
@@ -37,7 +55,7 @@ export interface ICreateSaleQuery {
   result: ICreateSaleResult;
 }
 
-const createSaleIR: any = {"usedParamSet":{"transaction_id":true,"transaction_date":true,"customer_id":true,"branch_id":true,"barber_id":true,"service_code":true,"total_amount":true,"payment_method":true,"reference_no":true,"count_1":true,"count_5":true,"count_10":true,"count_20":true,"count_50":true,"count_100":true,"count_200":true,"count_500":true,"count_1000":true,"created_by":true},"params":[{"name":"transaction_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":364,"b":378}]},{"name":"transaction_date","required":false,"transform":{"type":"scalar"},"locs":[{"a":386,"b":402}]},{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":410,"b":421}]},{"name":"branch_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":429,"b":438}]},{"name":"barber_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":446,"b":455}]},{"name":"service_code","required":false,"transform":{"type":"scalar"},"locs":[{"a":463,"b":475}]},{"name":"total_amount","required":false,"transform":{"type":"scalar"},"locs":[{"a":483,"b":495}]},{"name":"payment_method","required":false,"transform":{"type":"scalar"},"locs":[{"a":503,"b":517}]},{"name":"reference_no","required":false,"transform":{"type":"scalar"},"locs":[{"a":525,"b":537}]},{"name":"count_1","required":false,"transform":{"type":"scalar"},"locs":[{"a":545,"b":552}]},{"name":"count_5","required":false,"transform":{"type":"scalar"},"locs":[{"a":560,"b":567}]},{"name":"count_10","required":false,"transform":{"type":"scalar"},"locs":[{"a":575,"b":583}]},{"name":"count_20","required":false,"transform":{"type":"scalar"},"locs":[{"a":591,"b":599}]},{"name":"count_50","required":false,"transform":{"type":"scalar"},"locs":[{"a":607,"b":615}]},{"name":"count_100","required":false,"transform":{"type":"scalar"},"locs":[{"a":623,"b":632}]},{"name":"count_200","required":false,"transform":{"type":"scalar"},"locs":[{"a":640,"b":649}]},{"name":"count_500","required":false,"transform":{"type":"scalar"},"locs":[{"a":657,"b":666}]},{"name":"count_1000","required":false,"transform":{"type":"scalar"},"locs":[{"a":674,"b":684}]},{"name":"created_by","required":false,"transform":{"type":"scalar"},"locs":[{"a":692,"b":702}]}],"statement":"INSERT INTO bph_sales (\n    transaction_id, \n    transaction_date, \n    customer_id, \n    branch_id, \n    barber_id, \n    service_code, \n    total_amount, \n    payment_method, \n    reference_no, \n    count_1, \n    count_5, \n    count_10, \n    count_20, \n    count_50, \n    count_100, \n    count_200, \n    count_500, \n    count_1000, \n    created_by\n)\nVALUES (\n    :transaction_id, \n    :transaction_date, \n    :customer_id, \n    :branch_id, \n    :barber_id, \n    :service_code, \n    :total_amount, \n    :payment_method, \n    :reference_no, \n    :count_1, \n    :count_5, \n    :count_10, \n    :count_20, \n    :count_50, \n    :count_100, \n    :count_200, \n    :count_500, \n    :count_1000, \n    :created_by\n)"};
+const createSaleIR: any = {"usedParamSet":{"transaction_id":true,"transaction_date":true,"customer_id":true,"branch_id":true,"total_amount":true,"payment_method":true,"reference_no":true,"count_1":true,"count_5":true,"count_10":true,"count_20":true,"count_50":true,"count_100":true,"count_200":true,"count_500":true,"count_1000":true,"created_by":true,"remarks":true},"params":[{"name":"transaction_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":343,"b":357}]},{"name":"transaction_date","required":false,"transform":{"type":"scalar"},"locs":[{"a":365,"b":381}]},{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":389,"b":400}]},{"name":"branch_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":408,"b":417}]},{"name":"total_amount","required":false,"transform":{"type":"scalar"},"locs":[{"a":425,"b":437}]},{"name":"payment_method","required":false,"transform":{"type":"scalar"},"locs":[{"a":445,"b":459}]},{"name":"reference_no","required":false,"transform":{"type":"scalar"},"locs":[{"a":467,"b":479}]},{"name":"count_1","required":false,"transform":{"type":"scalar"},"locs":[{"a":487,"b":494}]},{"name":"count_5","required":false,"transform":{"type":"scalar"},"locs":[{"a":502,"b":509}]},{"name":"count_10","required":false,"transform":{"type":"scalar"},"locs":[{"a":517,"b":525}]},{"name":"count_20","required":false,"transform":{"type":"scalar"},"locs":[{"a":533,"b":541}]},{"name":"count_50","required":false,"transform":{"type":"scalar"},"locs":[{"a":549,"b":557}]},{"name":"count_100","required":false,"transform":{"type":"scalar"},"locs":[{"a":565,"b":574}]},{"name":"count_200","required":false,"transform":{"type":"scalar"},"locs":[{"a":582,"b":591}]},{"name":"count_500","required":false,"transform":{"type":"scalar"},"locs":[{"a":599,"b":608}]},{"name":"count_1000","required":false,"transform":{"type":"scalar"},"locs":[{"a":616,"b":626}]},{"name":"created_by","required":false,"transform":{"type":"scalar"},"locs":[{"a":634,"b":644}]},{"name":"remarks","required":false,"transform":{"type":"scalar"},"locs":[{"a":652,"b":659}]}],"statement":"INSERT INTO bph_sales (\n    transaction_id, \n    transaction_date, \n    customer_id, \n    branch_id, \n    total_amount, \n    payment_method, \n    reference_no, \n    count_1, \n    count_5, \n    count_10, \n    count_20, \n    count_50, \n    count_100, \n    count_200, \n    count_500, \n    count_1000, \n    created_by, \n    remarks\n)\nVALUES (\n    :transaction_id, \n    :transaction_date, \n    :customer_id, \n    :branch_id, \n    :total_amount, \n    :payment_method, \n    :reference_no, \n    :count_1, \n    :count_5, \n    :count_10, \n    :count_20, \n    :count_50, \n    :count_100, \n    :count_200, \n    :count_500, \n    :count_1000, \n    :created_by, \n    :remarks\n)\nRETURNING *"};
 
 /**
  * Query generated from SQL:
@@ -47,8 +65,6 @@ const createSaleIR: any = {"usedParamSet":{"transaction_id":true,"transaction_da
  *     transaction_date, 
  *     customer_id, 
  *     branch_id, 
- *     barber_id, 
- *     service_code, 
  *     total_amount, 
  *     payment_method, 
  *     reference_no, 
@@ -61,15 +77,14 @@ const createSaleIR: any = {"usedParamSet":{"transaction_id":true,"transaction_da
  *     count_200, 
  *     count_500, 
  *     count_1000, 
- *     created_by
+ *     created_by, 
+ *     remarks
  * )
  * VALUES (
  *     :transaction_id, 
  *     :transaction_date, 
  *     :customer_id, 
  *     :branch_id, 
- *     :barber_id, 
- *     :service_code, 
  *     :total_amount, 
  *     :payment_method, 
  *     :reference_no, 
@@ -82,19 +97,22 @@ const createSaleIR: any = {"usedParamSet":{"transaction_id":true,"transaction_da
  *     :count_200, 
  *     :count_500, 
  *     :count_1000, 
- *     :created_by
+ *     :created_by, 
+ *     :remarks
  * )
+ * RETURNING *
  * ```
  */
 export const createSale = new PreparedQuery<ICreateSaleParams,ICreateSaleResult>(createSaleIR);
 
 
 /** 'GetLatestSales' parameters type */
-export type IGetLatestSalesParams = void;
+export interface IGetLatestSalesParams {
+  branch_id?: string | null | void;
+}
 
 /** 'GetLatestSales' return type */
 export interface IGetLatestSalesResult {
-  barber_id: string;
   branch_id: string;
   count_1: number | null;
   count_10: number | null;
@@ -109,7 +127,7 @@ export interface IGetLatestSalesResult {
   customer_id: string;
   payment_method: string;
   reference_no: string | null;
-  service_code: string;
+  remarks: string | null;
   total_amount: string;
   transaction_date: Date;
   transaction_id: string;
@@ -121,12 +139,12 @@ export interface IGetLatestSalesQuery {
   result: IGetLatestSalesResult;
 }
 
-const getLatestSalesIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT * FROM bph_sales ORDER BY transaction_date DESC"};
+const getLatestSalesIR: any = {"usedParamSet":{"branch_id":true},"params":[{"name":"branch_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":42,"b":51}]}],"statement":"SELECT * FROM bph_sales WHERE branch_id = :branch_id ORDER BY transaction_date DESC"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM bph_sales ORDER BY transaction_date DESC
+ * SELECT * FROM bph_sales WHERE branch_id = :branch_id ORDER BY transaction_date DESC
  * ```
  */
 export const getLatestSales = new PreparedQuery<IGetLatestSalesParams,IGetLatestSalesResult>(getLatestSalesIR);
@@ -139,7 +157,6 @@ export interface IGetSalesByTransactionIdParams {
 
 /** 'GetSalesByTransactionId' return type */
 export interface IGetSalesByTransactionIdResult {
-  barber_id: string;
   branch_id: string;
   count_1: number | null;
   count_10: number | null;
@@ -154,7 +171,7 @@ export interface IGetSalesByTransactionIdResult {
   customer_id: string;
   payment_method: string;
   reference_no: string | null;
-  service_code: string;
+  remarks: string | null;
   total_amount: string;
   transaction_date: Date;
   transaction_id: string;
@@ -185,7 +202,6 @@ export interface IGetSalesByDateRangeParams {
 
 /** 'GetSalesByDateRange' return type */
 export interface IGetSalesByDateRangeResult {
-  barber_id: string;
   branch_id: string;
   count_1: number | null;
   count_10: number | null;
@@ -200,7 +216,7 @@ export interface IGetSalesByDateRangeResult {
   customer_id: string;
   payment_method: string;
   reference_no: string | null;
-  service_code: string;
+  remarks: string | null;
   total_amount: string;
   transaction_date: Date;
   transaction_id: string;
@@ -230,7 +246,6 @@ export interface IGetSalesByCustomerParams {
 
 /** 'GetSalesByCustomer' return type */
 export interface IGetSalesByCustomerResult {
-  barber_id: string;
   branch_id: string;
   count_1: number | null;
   count_10: number | null;
@@ -245,7 +260,7 @@ export interface IGetSalesByCustomerResult {
   customer_id: string;
   payment_method: string;
   reference_no: string | null;
-  service_code: string;
+  remarks: string | null;
   total_amount: string;
   transaction_date: Date;
   transaction_id: string;
@@ -275,7 +290,6 @@ export interface IGetSalesByBranchParams {
 
 /** 'GetSalesByBranch' return type */
 export interface IGetSalesByBranchResult {
-  barber_id: string;
   branch_id: string;
   count_1: number | null;
   count_10: number | null;
@@ -290,7 +304,7 @@ export interface IGetSalesByBranchResult {
   customer_id: string;
   payment_method: string;
   reference_no: string | null;
-  service_code: string;
+  remarks: string | null;
   total_amount: string;
   transaction_date: Date;
   transaction_id: string;
@@ -320,7 +334,6 @@ export interface IGetSalesByBarberParams {
 
 /** 'GetSalesByBarber' return type */
 export interface IGetSalesByBarberResult {
-  barber_id: string;
   branch_id: string;
   count_1: number | null;
   count_10: number | null;
@@ -335,7 +348,7 @@ export interface IGetSalesByBarberResult {
   customer_id: string;
   payment_method: string;
   reference_no: string | null;
-  service_code: string;
+  remarks: string | null;
   total_amount: string;
   transaction_date: Date;
   transaction_id: string;
@@ -347,12 +360,14 @@ export interface IGetSalesByBarberQuery {
   result: IGetSalesByBarberResult;
 }
 
-const getSalesByBarberIR: any = {"usedParamSet":{"barber_id":true},"params":[{"name":"barber_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":42,"b":51}]}],"statement":"SELECT * FROM bph_sales WHERE barber_id = :barber_id ORDER BY transaction_date DESC"};
+const getSalesByBarberIR: any = {"usedParamSet":{"barber_id":true},"params":[{"name":"barber_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":110,"b":119}]}],"statement":"SELECT * FROM bph_sales \nWHERE transaction_id IN (SELECT transaction_id FROM bph_sales_item WHERE barber_id = :barber_id) \nORDER BY transaction_date DESC"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM bph_sales WHERE barber_id = :barber_id ORDER BY transaction_date DESC
+ * SELECT * FROM bph_sales 
+ * WHERE transaction_id IN (SELECT transaction_id FROM bph_sales_item WHERE barber_id = :barber_id) 
+ * ORDER BY transaction_date DESC
  * ```
  */
 export const getSalesByBarber = new PreparedQuery<IGetSalesByBarberParams,IGetSalesByBarberResult>(getSalesByBarberIR);
@@ -365,7 +380,6 @@ export interface IGetSalesByPaymentMethodParams {
 
 /** 'GetSalesByPaymentMethod' return type */
 export interface IGetSalesByPaymentMethodResult {
-  barber_id: string;
   branch_id: string;
   count_1: number | null;
   count_10: number | null;
@@ -380,7 +394,7 @@ export interface IGetSalesByPaymentMethodResult {
   customer_id: string;
   payment_method: string;
   reference_no: string | null;
-  service_code: string;
+  remarks: string | null;
   total_amount: string;
   transaction_date: Date;
   transaction_id: string;
@@ -405,8 +419,6 @@ export const getSalesByPaymentMethod = new PreparedQuery<IGetSalesByPaymentMetho
 
 /** 'UpdateSale' parameters type */
 export interface IUpdateSaleParams {
-  barber_id?: string | null | void;
-  branch_id?: string | null | void;
   count_1?: number | null | void;
   count_10?: number | null | void;
   count_100?: number | null | void;
@@ -417,17 +429,34 @@ export interface IUpdateSaleParams {
   count_50?: number | null | void;
   count_500?: number | null | void;
   created_by?: string | null | void;
-  customer_id?: string | null | void;
   payment_method?: string | null | void;
   reference_no?: string | null | void;
-  service_code?: string | null | void;
+  remarks?: string | null | void;
   total_amount?: NumberOrString | null | void;
-  transaction_date?: DateOrString | null | void;
   transaction_id?: string | null | void;
 }
 
 /** 'UpdateSale' return type */
-export type IUpdateSaleResult = void;
+export interface IUpdateSaleResult {
+  branch_id: string;
+  count_1: number | null;
+  count_10: number | null;
+  count_100: number | null;
+  count_1000: number | null;
+  count_20: number | null;
+  count_200: number | null;
+  count_5: number | null;
+  count_50: number | null;
+  count_500: number | null;
+  created_by: string | null;
+  customer_id: string;
+  payment_method: string;
+  reference_no: string | null;
+  remarks: string | null;
+  total_amount: string;
+  transaction_date: Date;
+  transaction_id: string;
+}
 
 /** 'UpdateSale' query type */
 export interface IUpdateSaleQuery {
@@ -435,7 +464,7 @@ export interface IUpdateSaleQuery {
   result: IUpdateSaleResult;
 }
 
-const updateSaleIR: any = {"usedParamSet":{"total_amount":true,"payment_method":true,"reference_no":true,"count_1":true,"count_5":true,"count_10":true,"count_20":true,"count_50":true,"count_100":true,"count_200":true,"count_500":true,"count_1000":true,"created_by":true,"transaction_id":true,"transaction_date":true,"customer_id":true,"branch_id":true,"barber_id":true,"service_code":true},"params":[{"name":"total_amount","required":false,"transform":{"type":"scalar"},"locs":[{"a":37,"b":49}]},{"name":"payment_method","required":false,"transform":{"type":"scalar"},"locs":[{"a":73,"b":87}]},{"name":"reference_no","required":false,"transform":{"type":"scalar"},"locs":[{"a":109,"b":121}]},{"name":"count_1","required":false,"transform":{"type":"scalar"},"locs":[{"a":138,"b":145}]},{"name":"count_5","required":false,"transform":{"type":"scalar"},"locs":[{"a":162,"b":169}]},{"name":"count_10","required":false,"transform":{"type":"scalar"},"locs":[{"a":187,"b":195}]},{"name":"count_20","required":false,"transform":{"type":"scalar"},"locs":[{"a":213,"b":221}]},{"name":"count_50","required":false,"transform":{"type":"scalar"},"locs":[{"a":239,"b":247}]},{"name":"count_100","required":false,"transform":{"type":"scalar"},"locs":[{"a":266,"b":275}]},{"name":"count_200","required":false,"transform":{"type":"scalar"},"locs":[{"a":294,"b":303}]},{"name":"count_500","required":false,"transform":{"type":"scalar"},"locs":[{"a":322,"b":331}]},{"name":"count_1000","required":false,"transform":{"type":"scalar"},"locs":[{"a":351,"b":361}]},{"name":"created_by","required":false,"transform":{"type":"scalar"},"locs":[{"a":381,"b":391}]},{"name":"transaction_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":416,"b":430}]},{"name":"transaction_date","required":false,"transform":{"type":"scalar"},"locs":[{"a":460,"b":476}]},{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":501,"b":512}]},{"name":"branch_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":535,"b":544}]},{"name":"barber_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":567,"b":576}]},{"name":"service_code","required":false,"transform":{"type":"scalar"},"locs":[{"a":602,"b":614}]}],"statement":"UPDATE bph_sales \nSET total_amount = :total_amount,\n    payment_method = :payment_method,\n    reference_no = :reference_no,\n    count_1 = :count_1,\n    count_5 = :count_5,\n    count_10 = :count_10,\n    count_20 = :count_20,\n    count_50 = :count_50,\n    count_100 = :count_100,\n    count_200 = :count_200,\n    count_500 = :count_500,\n    count_1000 = :count_1000,\n    created_by = :created_by\nWHERE transaction_id = :transaction_id \n    AND transaction_date = :transaction_date \n    AND customer_id = :customer_id \n    AND branch_id = :branch_id \n    AND barber_id = :barber_id \n    AND service_code = :service_code"};
+const updateSaleIR: any = {"usedParamSet":{"total_amount":true,"payment_method":true,"reference_no":true,"count_1":true,"count_5":true,"count_10":true,"count_20":true,"count_50":true,"count_100":true,"count_200":true,"count_500":true,"count_1000":true,"created_by":true,"remarks":true,"transaction_id":true},"params":[{"name":"total_amount","required":false,"transform":{"type":"scalar"},"locs":[{"a":37,"b":49}]},{"name":"payment_method","required":false,"transform":{"type":"scalar"},"locs":[{"a":73,"b":87}]},{"name":"reference_no","required":false,"transform":{"type":"scalar"},"locs":[{"a":109,"b":121}]},{"name":"count_1","required":false,"transform":{"type":"scalar"},"locs":[{"a":138,"b":145}]},{"name":"count_5","required":false,"transform":{"type":"scalar"},"locs":[{"a":162,"b":169}]},{"name":"count_10","required":false,"transform":{"type":"scalar"},"locs":[{"a":187,"b":195}]},{"name":"count_20","required":false,"transform":{"type":"scalar"},"locs":[{"a":213,"b":221}]},{"name":"count_50","required":false,"transform":{"type":"scalar"},"locs":[{"a":239,"b":247}]},{"name":"count_100","required":false,"transform":{"type":"scalar"},"locs":[{"a":266,"b":275}]},{"name":"count_200","required":false,"transform":{"type":"scalar"},"locs":[{"a":294,"b":303}]},{"name":"count_500","required":false,"transform":{"type":"scalar"},"locs":[{"a":322,"b":331}]},{"name":"count_1000","required":false,"transform":{"type":"scalar"},"locs":[{"a":351,"b":361}]},{"name":"created_by","required":false,"transform":{"type":"scalar"},"locs":[{"a":381,"b":391}]},{"name":"remarks","required":false,"transform":{"type":"scalar"},"locs":[{"a":408,"b":415}]},{"name":"transaction_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":440,"b":454}]}],"statement":"UPDATE bph_sales \nSET total_amount = :total_amount,\n    payment_method = :payment_method,\n    reference_no = :reference_no,\n    count_1 = :count_1,\n    count_5 = :count_5,\n    count_10 = :count_10,\n    count_20 = :count_20,\n    count_50 = :count_50,\n    count_100 = :count_100,\n    count_200 = :count_200,\n    count_500 = :count_500,\n    count_1000 = :count_1000,\n    created_by = :created_by,\n    remarks = :remarks\nWHERE transaction_id = :transaction_id\nRETURNING *"};
 
 /**
  * Query generated from SQL:
@@ -453,13 +482,10 @@ const updateSaleIR: any = {"usedParamSet":{"total_amount":true,"payment_method":
  *     count_200 = :count_200,
  *     count_500 = :count_500,
  *     count_1000 = :count_1000,
- *     created_by = :created_by
- * WHERE transaction_id = :transaction_id 
- *     AND transaction_date = :transaction_date 
- *     AND customer_id = :customer_id 
- *     AND branch_id = :branch_id 
- *     AND barber_id = :barber_id 
- *     AND service_code = :service_code
+ *     created_by = :created_by,
+ *     remarks = :remarks
+ * WHERE transaction_id = :transaction_id
+ * RETURNING *
  * ```
  */
 export const updateSale = new PreparedQuery<IUpdateSaleParams,IUpdateSaleResult>(updateSaleIR);
@@ -467,16 +493,30 @@ export const updateSale = new PreparedQuery<IUpdateSaleParams,IUpdateSaleResult>
 
 /** 'DeleteSale' parameters type */
 export interface IDeleteSaleParams {
-  barber_id?: string | null | void;
-  branch_id?: string | null | void;
-  customer_id?: string | null | void;
-  service_code?: string | null | void;
-  transaction_date?: DateOrString | null | void;
   transaction_id?: string | null | void;
 }
 
 /** 'DeleteSale' return type */
-export type IDeleteSaleResult = void;
+export interface IDeleteSaleResult {
+  branch_id: string;
+  count_1: number | null;
+  count_10: number | null;
+  count_100: number | null;
+  count_1000: number | null;
+  count_20: number | null;
+  count_200: number | null;
+  count_5: number | null;
+  count_50: number | null;
+  count_500: number | null;
+  created_by: string | null;
+  customer_id: string;
+  payment_method: string;
+  reference_no: string | null;
+  remarks: string | null;
+  total_amount: string;
+  transaction_date: Date;
+  transaction_id: string;
+}
 
 /** 'DeleteSale' query type */
 export interface IDeleteSaleQuery {
@@ -484,18 +524,14 @@ export interface IDeleteSaleQuery {
   result: IDeleteSaleResult;
 }
 
-const deleteSaleIR: any = {"usedParamSet":{"transaction_id":true,"transaction_date":true,"customer_id":true,"branch_id":true,"barber_id":true,"service_code":true},"params":[{"name":"transaction_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":60}]},{"name":"transaction_date","required":false,"transform":{"type":"scalar"},"locs":[{"a":90,"b":106}]},{"name":"customer_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":131,"b":142}]},{"name":"branch_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":165,"b":174}]},{"name":"barber_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":197,"b":206}]},{"name":"service_code","required":false,"transform":{"type":"scalar"},"locs":[{"a":232,"b":244}]}],"statement":"DELETE FROM bph_sales \nWHERE transaction_id = :transaction_id \n    AND transaction_date = :transaction_date \n    AND customer_id = :customer_id \n    AND branch_id = :branch_id \n    AND barber_id = :barber_id \n    AND service_code = :service_code"};
+const deleteSaleIR: any = {"usedParamSet":{"transaction_id":true},"params":[{"name":"transaction_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":60}]}],"statement":"DELETE FROM bph_sales \nWHERE transaction_id = :transaction_id\nRETURNING *"};
 
 /**
  * Query generated from SQL:
  * ```
  * DELETE FROM bph_sales 
- * WHERE transaction_id = :transaction_id 
- *     AND transaction_date = :transaction_date 
- *     AND customer_id = :customer_id 
- *     AND branch_id = :branch_id 
- *     AND barber_id = :barber_id 
- *     AND service_code = :service_code
+ * WHERE transaction_id = :transaction_id
+ * RETURNING *
  * ```
  */
 export const deleteSale = new PreparedQuery<IDeleteSaleParams,IDeleteSaleResult>(deleteSaleIR);
