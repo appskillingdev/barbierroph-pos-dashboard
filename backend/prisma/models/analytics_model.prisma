@@ -1,55 +1,73 @@
 // ========================================
 // ANALYTICS & REPORTING VIEWS
 // ========================================
+// Read-only. The SQL for each view lives in prisma/migrations/*_analytics_views;
+// Prisma does not generate it from these blocks. Keep fields in sync with it.
+// Columns that are NULL until their logic is defined (TBD) are optional.
 
-// Read-only view: v_mtd_report
+// One row per month (period = YYYYMM)
 view VMtdReport {
-  period                      String  
-  actualSales                 Decimal
-  headcount                   Int
-  headcountPrevMonthPerctg    Decimal
-  headcountGainedLost         Int
-  growthVsLy                  Decimal
-  averageCost                 Decimal
-  averageHeadsPerBarber       Decimal
-  averageBarbersOnDuty        Decimal
-  averageDailySales           Decimal
-  averageDailyHeadcount       Decimal
-  operationalDaysCount        Int?   
-  totalBarberPayouts          Decimal
-  totalStaffPayouts           Decimal
-  grandTotalPayouts           Decimal
-  monthlyGrossProfit          Decimal
-  monthlyShare                Decimal
-  averageMonthlyPayout        Decimal
-  averageDailyPayout          Decimal 
-  // @@map("v_mtd_report")
-  // @@ignore
+  period                   String   @unique
+  actualSales              Decimal  @map("actual_sales")
+  headcount                Int
+  headcountPrevMonthPerctg Decimal? @map("headcount_prev_month_perctg")
+  headcountGainedLost      Int?     @map("headcount_gained_lost")
+  growthVsLy               Decimal? @map("growth_vs_ly") // TBD
+  averageCost              Decimal? @map("average_cost")
+  averageHeadsPerBarber    Decimal? @map("average_heads_per_barber")
+  averageBarbersOnDuty     Decimal? @map("average_barbers_on_duty")
+  averageDailySales        Decimal? @map("average_daily_sales")
+  averageDailyHeadcount    Decimal? @map("average_daily_headcount")
+  operationalDaysCount     Int      @map("operational_days_count")
+  totalBarberPayouts       Decimal? @map("total_barber_payouts")
+  totalStaffPayouts        Decimal? @map("total_staff_payouts") // TBD
+  grandTotalPayouts        Decimal? @map("grand_total_payouts") // TBD
+  monthlyGrossProfit       Decimal? @map("monthly_gross_profit")
+  monthlyShare             Decimal? @map("monthly_share")
+  averageMonthlyPayout     Decimal? @map("average_monthly_payout")
+  averageDailyPayout       Decimal? @map("average_daily_payout")
+
+  @@map("v_mtd_report")
 }
 
-// Read-only view: v_barbers_performance
-// view VBarbersPerformance {
-//   id String @id @default(uuid())
-//   // Add specific fields based on barber performance tracking needs
+// One row per (barber, period); pivot periods into columns in the API layer
+view VBarbersPerformance {
+  barberId          String  @map("barber_id")
+  barberName        String  @map("barber_name")
+  period            String
+  totalTransactions Int     @map("total_transactions")
+  totalAmount       Decimal @map("total_amount")
 
-//   // @@map("v_barbers_performance")
-//   // @@ignore
-// }
+  @@unique([barberId, period])
+  @@map("v_barbers_performance")
+}
 
-// Read-only view: v_customer_lifetime_value
+// One row per (barber, date); filter by period for a month's breakdown
+view VBarbersPerformanceDetail {
+  barberId         String   @map("barber_id")
+  barberName       String   @map("barber_name")
+  period           String
+  date             DateTime @db.Date
+  amount           Decimal
+  commissionAmount Decimal  @map("commission_amount")
+
+  @@unique([barberId, date])
+  @@map("v_barbers_performance_detail")
+}
+
+// One row per customer
 view VCustomerLifetimeValue {
-  customerId              String  
-  customerName            String
-  visitCount              Int
-  visitInterval           Decimal
-  averageVisit            Decimal
-  clv                     Decimal
-  visitDateFirst          DateTime
-  visitDateLatest         DateTime
-  projectedDateReturn     DateTime
-  latestBarberAssigned    String
-  latestService           String
+  customerId           String    @unique @map("customer_id")
+  customerName         String    @map("customer_name")
+  visitCount           Int?      @map("visit_count")
+  visitInterval        Decimal?  @map("visit_interval")
+  averageVisit         Decimal?  @map("average_visit") // TBD
+  clv                  Decimal? // TBD
+  visitDateFirst       DateTime? @map("visit_date_first") @db.Date
+  visitDateLatest      DateTime? @map("visit_date_latest") @db.Date
+  projectedDateReturn  DateTime? @map("projected_date_return") @db.Date
+  latestBarberAssigned String?   @map("lastest_barber_assigned")
+  latestService        String?   @map("lastest_service")
 
-  // @@map("v_customer_lifetime_value")
-  // @@ignore
+  @@map("v_customer_lifetime_value")
 }
